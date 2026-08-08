@@ -1,0 +1,30 @@
+name: full-body-mode-map
+
+on:
+  push:
+    paths:
+      - 'full_body_mode_map.py'
+      - '.github/workflows/full-body-mode-map.yml'
+  workflow_dispatch:
+
+jobs:
+  map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python full_body_mode_map.py --selftest
+      - name: Map benchmark spectral coordinates on seeds 288-299
+        run: python full_body_mode_map.py --functional-arbors FunctionalArbors --seed-start 288 --seeds 12 --P 8 --lags 16,20,24 --out runs/full_body_mode_map/map_288_299.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-body-mode-map-288-299
+          path: runs/full_body_mode_map/

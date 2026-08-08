@@ -1,0 +1,39 @@
+name: lockin-overlap-confirm
+
+on:
+  push:
+    paths:
+      - 'LOCKIN_OVERLAP_CONFIRM_PREREG_V01.md'
+      - 'lockin_overlap_probe.py'
+      - 'polarization_identity_probe.py'
+      - 'lockin_overlap_confirm.py'
+      - '.github/workflows/lockin-overlap-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python polarization_identity_probe.py --selftest
+      - run: python lockin_overlap_probe.py --selftest
+      - name: Fresh polarization bodies 480-491
+        run: python polarization_identity_probe.py --functional-arbors FunctionalArbors --seed-start 480 --seeds 12 --lag 20 --steps 210 --out runs/lockin_overlap_confirm/polarization_480_491.json
+      - name: Fresh overlap bodies 480-491
+        run: python lockin_overlap_probe.py --functional-arbors FunctionalArbors --seed-start 480 --seeds 12 --lag 20 --steps 210 --out runs/lockin_overlap_confirm/overlap_480_491.json
+      - name: Evaluate preregistration
+        run: python lockin_overlap_confirm.py --polarization runs/lockin_overlap_confirm/polarization_480_491.json --overlap runs/lockin_overlap_confirm/overlap_480_491.json --out runs/lockin_overlap_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lockin-overlap-confirm-480-491
+          path: runs/lockin_overlap_confirm/

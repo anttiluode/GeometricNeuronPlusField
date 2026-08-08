@@ -1,0 +1,36 @@
+name: material-readout-recenter
+
+on:
+  push:
+    paths:
+      - 'material_readout_recenter.py'
+      - '.github/workflows/material-readout-recenter.yml'
+  workflow_dispatch:
+
+jobs:
+  recenter:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Move readout on development bodies 580-583
+        run: >-
+          python material_readout_recenter.py
+          --functional-arbors FunctionalArbors
+          --seed-start 580 --seeds 4
+          --omegas 0.03,0.04
+          --tau 2 --mu 0.5 --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10
+          --out runs/material_readout_recenter/dev_580_583.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-readout-recenter-580-583
+          path: runs/material_readout_recenter/

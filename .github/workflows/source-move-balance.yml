@@ -1,0 +1,58 @@
+name: source-move-balance
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'source_move_balance_probe.py'
+      - 'SOURCE_MOVE_BALANCE_PREREG_V01.md'
+      - '.github/workflows/source-move-balance.yml'
+
+jobs:
+  source-move:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Selftest
+        run: python source_move_balance_probe.py --selftest
+
+      - name: Discovery seeds 0-11
+        run: >-
+          python source_move_balance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/source_move_balance/discovery.json
+
+      - name: Confirmation seeds 12-23
+        run: >-
+          python source_move_balance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 12
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/source_move_balance/confirmation.json
+
+      - name: Upload receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-move-balance-24
+          path: runs/source_move_balance/

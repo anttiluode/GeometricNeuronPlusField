@@ -1,0 +1,29 @@
+name: spectral-coordinate-locality-confirm
+
+on:
+  push:
+    paths:
+      - '.github/workflows/spectral-coordinate-locality-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python spectral_coordinate_locality.py --selftest
+      - name: Descriptive audit on benchmark seeds 288-299
+        run: python spectral_coordinate_locality.py --functional-arbors FunctionalArbors --seed-start 288 --seeds 12 --P 8 --lags 16,20,24 --out runs/spectral_coordinate_locality_confirm/locality_288_299.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spectral-coordinate-locality-confirm-288-299
+          path: runs/spectral_coordinate_locality_confirm/

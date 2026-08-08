@@ -1,0 +1,45 @@
+name: material-learning-confirm
+
+on:
+  push:
+    paths:
+      - 'MATERIAL_LEARNING_CONFIRM_PREREG_V01.md'
+      - 'material_learning_confirm.py'
+      - '.github/workflows/material-learning-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_material_learning.py --selftest
+      - name: Fresh bodies 584-595
+        run: >-
+          python hcn_material_learning.py
+          --functional-arbors FunctionalArbors
+          --seed-start 584 --seeds 12
+          --omegas 0.03,0.04
+          --tau 2 --mu 0.5
+          --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10
+          --nshuffle 16
+          --out runs/material_learning_confirm/receipt_584_595.json
+      - name: Evaluate frozen criteria
+        run: >-
+          python material_learning_confirm.py
+          --receipt runs/material_learning_confirm/receipt_584_595.json
+          --out runs/material_learning_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-learning-confirm-584-595
+          path: runs/material_learning_confirm/

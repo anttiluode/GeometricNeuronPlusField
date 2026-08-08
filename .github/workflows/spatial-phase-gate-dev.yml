@@ -1,0 +1,31 @@
+name: spatial-phase-gate-dev
+
+on:
+  push:
+    paths:
+      - 'spatial_phase_gate_probe.py'
+      - '.github/workflows/spatial-phase-gate-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python spatial_phase_gate_probe.py --selftest
+      - name: Development bodies 528-533
+        run: python spatial_phase_gate_probe.py --functional-arbors FunctionalArbors --seed-start 528 --seeds 6 --lag 20 --steps 210 --out runs/spatial_phase_gate/dev_528_533.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spatial-phase-gate-dev-528-533
+          path: runs/spatial_phase_gate/

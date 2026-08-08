@@ -23,8 +23,8 @@ moving complex field psi(x,t)
 convergence root / A-B amplitude-balance point
         |
         v
-active state V,m,h,n
-(history-dependent event availability)
+candidate active state V,m,h,n
+(consequential, but not computationally privileged by these tests)
         |
         v
 spike events
@@ -203,19 +203,66 @@ Magnitude and power point in the same direction. Carrier-phase PPC itself also f
 
 Therefore restoring the last phase-bearing scalar **does not rescue active timing**. In this lineage, phase is not currently justified as a special resource at eventization. See [`AIS_FINAL_PHASE_PREREG_V01.md`](AIS_FINAL_PHASE_PREREG_V01.md) and [`AIS_FINAL_PHASE_V01.md`](AIS_FINAL_PHASE_V01.md).
 
-## What is actually left of the AIS story?
+## Selection-information test: the last AIS rescue fails too
 
-A narrower hypothesis survives:
+Claude's remaining positive interpretation was attractive and testable:
 
-> **The active boundary may buy nonlinear event selection at a cost in timing precision.**
+> **perhaps the active boundary buys frequency selection at the cost of timing precision.**
 
-That is not yet a positive computational result. The next fair test is to ask whether, under a matched total spike budget, the active spike pattern carries more information about the input frequency/regime than the memoryless and own-linearization controls.
+[`ais_selection_info_probe.py`](ais_selection_info_probe.py) matched the memoryless and linearized controls to the active arm's **exact total event budget over all six frequencies**, leaving frequency allocation free to differ. The preregistered primary metric was
 
-Until that is demonstrated, AIS position/length/extent co-adaptation remains blocked.
+```text
+I_spike = KL[p(f | spike) || Uniform(6)]
+```
+
+in bits per spike, with `Re(psi)` as the primary feed.
+
+The result is not close:
+
+```text
+Re(psi), 24/24 valid bodies
+mean bits/spike
+active         0.1896
+linearized     1.5962
+memoryless     1.7612
+
+active-linear mean     -1.4066 bits/spike
+active-linear median   -1.3885
+active better / worse    0 / 24
+sign p                  1.19e-7
+```
+
+The secondary binary event-information metric agrees (`0.00314` active vs `0.0350` linearized bits/frame).
+
+Even the historical power feed loses badly at the same total spike budget (`1.383` active vs `2.317` linearized bits/spike). The old active frequency profile looked selective, but the simpler controls concentrate their events by frequency **even more strongly**.
+
+The active HH dynamics are therefore acting more like a cross-regime equalizer/normalizer here: they spread the finite spike budget across input conditions, reducing both timing precision and frequency identity per event.
+
+See [`AIS_SELECTION_INFO_PREREG_V01.md`](AIS_SELECTION_INFO_PREREG_V01.md) and [`AIS_SELECTION_INFO_V01.md`](AIS_SELECTION_INFO_V01.md).
+
+## AIS stopping point
+
+The generic HH-like bridge is clearly consequential, but it has not earned computational privilege on any tested positive criterion:
+
+```text
+changes event availability / firing regime                 YES
+strongly sensitive to h/n/K dynamics                       YES
+clean tunable passband                                      NO
+simple n-set refractory clock                               NO
+better matched spike-time precision                         NO -- worse
+special timing benefit from preserving carrier phase        NO -- worse
+more frequency information per matched spike                NO -- much worse
+```
+
+So **AIS position, length, channel density and body/AIS co-adaptation stop here**. Adding those degrees of freedom now would be tuning around a sequence of preregistered nulls and negative results.
+
+This does **not** erase the upstream geometry/field/soma results. It says the particular generic-HH downstream bridge we tried is not yet a reason to elaborate the architecture.
+
+A future active-boundary branch needs a new externally motivated objective — for example a downstream task that specifically requires sparse addressable events, an energetic/spike-budget objective, or a biologically motivated channel architecture — and should begin as a new hypothesis rather than a rescue of this one.
 
 ## Operator -> flow -> event
 
-The current synthesis remains useful even with the active-boundary nulls:
+The upstream synthesis remains useful even though the candidate eventizer failed its positive tests:
 
 ```text
 operator / morphology G      slow constraints on possible dynamics
@@ -227,7 +274,7 @@ flow / complex field psi(t)  continuous execution of those dynamics
 local convergence            amplitude-balanced consequential mixture
         |
         v
-active boundary state        nonlinear event availability/history
+candidate active boundary    nonlinear transformation; no earned advantage yet
         |
         v
 events                       sparse addressable output
@@ -249,6 +296,7 @@ See [`AIS_BRIDGE.md`](AIS_BRIDGE.md) and [`OPERATOR_FLOW_EVENT.md`](OPERATOR_FLO
 - [`ais_kinetics_probe.py`](ais_kinetics_probe.py) — h/n kinetic-speed test.
 - [`ais_n_isi_probe.py`](ais_n_isi_probe.py) — preregistered n-kinetics minimum-ISI mechanism test.
 - [`ais_interface_phase_probe.py`](ais_interface_phase_probe.py) — final `|psi|^2` / `|psi|` / `Re(psi)` phase-interface test.
+- [`ais_selection_info_probe.py`](ais_selection_info_probe.py) — exact-total-budget frequency information per spike test.
 
 ## Live-field / settled-readout result
 

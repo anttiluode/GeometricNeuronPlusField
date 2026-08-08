@@ -1,0 +1,30 @@
+name: analog-frontier-learning-confirm
+
+on:
+  push:
+    paths:
+      - 'ANALOG_FRONTIER_LEARNING_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/analog-frontier-learning-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python analog_frontier_learning.py --selftest
+      - name: Held-out seeds 252-263
+        run: python analog_frontier_learning.py --functional-arbors FunctionalArbors --seed-start 252 --seeds 12 --max-candidates 8 --eta 0.01 --iterations 40 --out runs/analog_frontier_learning_confirm/analog_frontier_learning_252_263.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: analog-frontier-learning-confirm-252-263
+          path: runs/analog_frontier_learning_confirm/

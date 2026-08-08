@@ -1,0 +1,58 @@
+name: transfer-decomposition
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'transfer_decomposition_probe.py'
+      - 'TRANSFER_DECOMPOSITION_PREREG_V01.md'
+      - '.github/workflows/transfer-decomposition.yml'
+
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Selftest
+        run: python transfer_decomposition_probe.py --selftest
+
+      - name: Fresh discovery seeds 48-59
+        run: >-
+          python transfer_decomposition_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 48
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/transfer_decomposition/discovery_48_59.json
+
+      - name: Fresh confirmation seeds 60-71
+        run: >-
+          python transfer_decomposition_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 60
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/transfer_decomposition/confirmation_60_71.json
+
+      - name: Upload receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transfer-decomposition-48-71
+          path: runs/transfer_decomposition/

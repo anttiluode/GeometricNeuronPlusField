@@ -6,6 +6,7 @@ on:
     paths:
       - 'graph_mode_probe.py'
       - 'confirm_graph_band.py'
+      - 'modal_mechanism_probe.py'
       - '.github/workflows/graph-mode-probe.yml'
 
 jobs:
@@ -49,6 +50,15 @@ jobs:
           --lag 20
           --outdir runs/confirm_graph_band
 
+      - name: Modal mechanism probe, seeds 0-11
+        run: >-
+          python modal_mechanism_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 12
+          --lag 20
+          --outdir runs/modal_mechanism
+
       - name: Upload discovery receipts
         uses: actions/upload-artifact@v4
         with:
@@ -60,3 +70,9 @@ jobs:
         with:
           name: heldout-graph-band-12-23
           path: runs/confirm_graph_band/
+
+      - name: Upload modal mechanism
+        uses: actions/upload-artifact@v4
+        with:
+          name: modal-mechanism-12
+          path: runs/modal_mechanism/

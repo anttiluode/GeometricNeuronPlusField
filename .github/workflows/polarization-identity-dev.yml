@@ -1,0 +1,30 @@
+name: polarization-identity-dev
+
+on:
+  push:
+    paths:
+      - 'polarization_identity_probe.py'
+      - '.github/workflows/polarization-identity-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python polarization_identity_probe.py --selftest
+      - name: Development seeds 472-479
+        run: python polarization_identity_probe.py --functional-arbors FunctionalArbors --seed-start 472 --seeds 8 --lag 20 --steps 210 --out runs/polarization_identity/dev_472_479.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polarization-identity-dev-472-479
+          path: runs/polarization_identity/

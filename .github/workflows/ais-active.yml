@@ -1,0 +1,50 @@
+name: ais-active-boundary
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ais_active_probe.py'
+      - 'AIS_ACTIVE_PREREG_V01.md'
+      - '.github/workflows/ais-active.yml'
+
+jobs:
+  ais:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Active boundary selftest
+        run: python ais_active_probe.py --selftest
+
+      - name: Active boundary canonical run
+        run: >-
+          python ais_active_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --lag 20
+          --task-steps 180
+          --freq-steps 640
+          --burn 160
+          --out runs/ais_active/ais_active.json
+
+      - name: Upload active-boundary receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: ais-active-boundary-24
+          path: runs/ais_active/

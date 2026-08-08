@@ -1,0 +1,31 @@
+name: interference-factorization-discovery
+
+on:
+  push:
+    paths:
+      - 'interference_factorization_probe.py'
+      - 'INTERFERENCE_FACTORIZATION_DISCOVERY_PREREG_V01.md'
+      - '.github/workflows/interference-factorization-discovery.yml'
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python interference_factorization_probe.py --selftest
+      - name: Fresh discovery seeds 132-143
+        run: python interference_factorization_probe.py --functional-arbors FunctionalArbors --seed-start 132 --seeds 12 --out runs/interference_factorization_discovery/interference_factorization_132_143.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: interference-factorization-discovery-132-143
+          path: runs/interference_factorization_discovery/

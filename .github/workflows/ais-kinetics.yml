@@ -1,0 +1,42 @@
+name: ais-kinetics
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ais_active_probe.py'
+      - 'ais_kinetics_probe.py'
+      - 'AIS_KINETICS_PREREG_V01.md'
+      - '.github/workflows/ais-kinetics.yml'
+
+jobs:
+  kinetics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Run h/n kinetics test
+        run: >-
+          python ais_kinetics_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --lag 20
+          --task-steps 180
+          --freq-steps 640
+          --burn 160
+          --out runs/ais_kinetics/ais_kinetics.json
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: ais-kinetics-24
+          path: runs/ais_kinetics/

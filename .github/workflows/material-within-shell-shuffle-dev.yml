@@ -1,0 +1,35 @@
+name: material-within-shell-shuffle-dev
+on:
+  push:
+    paths:
+      - 'material_within_shell_shuffle.py'
+      - '.github/workflows/material-within-shell-shuffle-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Shuffle released material only within graph-distance shells
+        run: >-
+          python material_within_shell_shuffle.py
+          --functional-arbors FunctionalArbors
+          --seed-start 622 --seeds 6
+          --omegas 0.03,0.04 --tau 2 --mu 0.5
+          --g0 0.005 --ratio 10
+          --radial-steps 160 --release-steps 80 --step-fraction 0.10
+          --nshuffle 12
+          --out runs/material_within_shell_shuffle/dev_622_627.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: material-within-shell-shuffle-dev-622-627
+          path: runs/material_within_shell_shuffle/

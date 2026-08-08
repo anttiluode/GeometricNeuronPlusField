@@ -1,13 +1,13 @@
 """Development audit for forward/adjoint operator mismatch.
 
 The exact reciprocal-adjoint identity assumes the same linear reciprocal spatial
-operator is used in the forward and retro passes.  Real hardware can drift between
-those passes.  This probe keeps each pass internally reciprocal but perturbs every
+operator is used in the forward and retro passes. Real hardware can drift between
+those passes. This probe keeps each pass internally reciprocal but perturbs every
 retro-pass edge conductance by a fixed fractional error relative to the forward
 operator.
 
 For one mismatch realization, the same edge error is shared by target/distractor
-retro passes.  The forward pass is untouched.  We audit both the full time-domain
+retro passes. The forward pass is untouched. We audit both the full time-domain
 physical overlap and the already-confirmed K=8/K=16 boundary-selected spectral
 compression.
 
@@ -26,7 +26,9 @@ from device_error_probe import complex_spectral_maps
 from spectral_correlation_compression_probe import port_spectrum_score
 from transfer_decomposition_probe import safe_corr
 
-SIGMAS=(0.0,.001,.0025,.005,.01,.02,.05,.10)
+# The first run found essentially no damage through 10%, so the development-only
+# sweep is deliberately extended into very large mismatch to locate a transition.
+SIGMAS=(0.0,.001,.0025,.005,.01,.02,.05,.10,.20,.30,.50,.75)
 
 
 def one_order(m,wh,wv,seq,weight,whr,wvr):
@@ -66,7 +68,6 @@ def run_rep(m,lag,steps,sigma,rep):
     for K in (8,16):
         kk=np.asarray(order[:K],int);ah=np.real(np.sum(ZH[kk],axis=0));av=np.real(np.sum(ZV[kk],axis=0))
         out[str(K)]=metrics(eh,ev,ah,av)
-    # Actual relative mismatch over all edge conductances, for receipt.
     base=np.concatenate([wh.ravel(),wv.ravel()]);ret=np.concatenate([whr.ravel(),wvr.ravel()])
     out['operator_relative_l2']=float(np.linalg.norm(ret-base)/(np.linalg.norm(base)+1e-30))
     return out
@@ -82,7 +83,7 @@ def one_body(m,lag,steps,reps):
 
 
 def selftest():
-    assert SIGMAS[0]==0 and .05 in SIGMAS
+    assert SIGMAS[0]==0 and .5 in SIGMAS
     print('selftest ok')
 
 
@@ -102,7 +103,7 @@ def main():
         summary['conditions'][key]['mean_operator_relative_l2']=float(np.mean([r['conditions'][key]['mean_operator_relative_l2'] for r in rows]))
         for name in ('full','8','16'):
             q=[r['conditions'][key][name] for r in rows];summary['conditions'][key][name]=dict(mean_corr=float(np.mean([x['corr'] for x in q])),mean_relative_l2=float(np.mean([x['relative_l2'] for x in q])),mean_strong_sign_agreement=float(np.mean([x['strong_sign_agreement'] for x in q])))
-    out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(experiment='operator_mismatch_dev_v01',summary=summary,rows=rows),indent=2))
+    out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(dict(experiment='operator_mismatch_dev_v02',summary=summary,rows=rows),indent=2))
     print('\nOPERATOR MISMATCH DEV')
     for s in SIGMAS:
         q=summary['conditions'][f'{s:g}'];print('sigma',s,'oprel',round(q['mean_operator_relative_l2'],4),'full',round(q['full']['mean_corr'],5),round(q['full']['mean_relative_l2'],5),'K8',round(q['8']['mean_corr'],5),round(q['8']['mean_relative_l2'],5),'K16',round(q['16']['mean_corr'],5),round(q['16']['mean_relative_l2'],5))

@@ -1,0 +1,43 @@
+name: material-within-shell-confirm
+on:
+  push:
+    paths:
+      - 'MATERIAL_WITHIN_SHELL_CONFIRM_PREREG_V01.md'
+      - 'material_within_shell_shuffle.py'
+      - 'material_within_shell_confirm.py'
+      - '.github/workflows/material-within-shell-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Fresh within-shell bodies 628-639
+        run: >-
+          python material_within_shell_shuffle.py
+          --functional-arbors FunctionalArbors
+          --seed-start 628 --seeds 12
+          --omegas 0.03,0.04 --tau 2 --mu 0.5
+          --g0 0.005 --ratio 10
+          --radial-steps 160 --release-steps 80 --step-fraction 0.10
+          --nshuffle 12
+          --out runs/material_within_shell_confirm/receipt_628_639.json
+      - name: Evaluate frozen criteria
+        run: >-
+          python material_within_shell_confirm.py
+          --receipt runs/material_within_shell_confirm/receipt_628_639.json
+          --out runs/material_within_shell_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-within-shell-confirm-628-639
+          path: runs/material_within_shell_confirm/

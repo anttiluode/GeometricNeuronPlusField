@@ -1,0 +1,30 @@
+name: adjoint-dose-confirm
+
+on:
+  push:
+    paths:
+      - 'ADJOINT_DOSE_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/adjoint-dose-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python adjoint_dose_probe.py --selftest
+      - name: Held-out seeds 204-215
+        run: python adjoint_dose_probe.py --functional-arbors FunctionalArbors --seed-start 204 --seeds 12 --max-each 6 --out runs/adjoint_dose_confirm/adjoint_dose_204_215.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adjoint-dose-confirm-204-215
+          path: runs/adjoint_dose_confirm/

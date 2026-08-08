@@ -1,0 +1,39 @@
+name: hcn-material-learning-dev
+
+on:
+  push:
+    paths:
+      - 'hcn_material_learning.py'
+      - '.github/workflows/hcn-material-learning-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  learn:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_material_learning.py --selftest
+      - name: Learn material from uniform start on bodies 580-583
+        run: >-
+          python hcn_material_learning.py
+          --functional-arbors FunctionalArbors
+          --seed-start 580 --seeds 4
+          --omegas 0.03,0.04
+          --tau 2 --mu 0.5
+          --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10
+          --nshuffle 12
+          --out runs/hcn_material_learning/dev_580_583.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hcn-material-learning-dev-580-583
+          path: runs/hcn_material_learning/

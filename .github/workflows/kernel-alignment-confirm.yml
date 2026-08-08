@@ -1,0 +1,36 @@
+name: kernel-alignment-confirm
+
+on:
+  push:
+    paths:
+      - 'KERNEL_ALIGNMENT_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/kernel-alignment-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+      - name: Selftest
+        run: python kernel_alignment_probe.py --selftest
+      - name: Held-out seeds 120-131
+        run: python kernel_alignment_probe.py --functional-arbors FunctionalArbors --seed-start 120 --seeds 12 --out runs/kernel_alignment_confirm/kernel_alignment_120_131.json
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-alignment-confirm-120-131
+          path: runs/kernel_alignment_confirm/

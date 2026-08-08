@@ -13,6 +13,7 @@ from scipy.optimize import nnls
 
 import adjoint_eligibility_probe as ae
 import adjoint_dose_probe as ad
+import analog_frontier_learning as afl
 from matched_tuner_audit import modal_setup,aggregate_modal,modal_C_grad,all_edges,edge_value,edge_grad
 
 KS=(1,2,4,8,16,24)
@@ -24,7 +25,7 @@ def local_feature_jacobian(m,wh,wv,lags,steps):
     edges=all_edges(m.body.shape);kb=float(m.cfg.k_mature_bath);ka=float(m.cfg.k_arbor);dk=ka-kb
     J=np.zeros((len(lags),len(edges)),float)
     for r,lag in enumerate(lags):
-        st=ae.contrast_adjoint_weights(m,wh,wv,ae.source_sequence(m,True,lag,steps),ae.source_sequence(m,False,lag,steps))
+        st=afl.contrast_adjoint_weights(m,wh,wv,ae.source_sequence(m,True,lag,steps),ae.source_sequence(m,False,lag,steps))
         for j,e in enumerate(edges):
             raw=dk*edge_grad(st['gh'],st['gv'],e)
             rho=(edge_value((wh,wv),e)-kb)/dk

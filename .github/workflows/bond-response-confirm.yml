@@ -1,0 +1,30 @@
+name: bond-response-confirm
+
+on:
+  push:
+    paths:
+      - 'BOND_RESPONSE_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/bond-response-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python bond_response_probe.py --selftest
+      - name: Held-out seeds 228-239
+        run: python bond_response_probe.py --functional-arbors FunctionalArbors --seed-start 228 --seeds 12 --max-each 6 --out runs/bond_response_confirm/bond_response_228_239.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bond-response-confirm-228-239
+          path: runs/bond_response_confirm/

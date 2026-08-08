@@ -1,0 +1,30 @@
+name: coupling-contrast-dev
+
+on:
+  push:
+    paths:
+      - 'coupling_contrast_sweep.py'
+      - '.github/workflows/coupling-contrast-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python coupling_contrast_sweep.py --selftest
+      - name: Development sweep on exposed benchmark bodies
+        run: python coupling_contrast_sweep.py --functional-arbors FunctionalArbors --seed-start 288 --seeds 12 --lags 14,18,20,22,26 --out runs/coupling_contrast_sweep/sweep_288_299.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coupling-contrast-dev-288-299
+          path: runs/coupling_contrast_sweep/

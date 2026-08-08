@@ -1,0 +1,36 @@
+name: damping-gauge-pass-drift-closed-loop-dev
+on:
+  push:
+    paths:
+      - 'damping_gauge_pass_drift_closed_loop.py'
+      - '.github/workflows/damping-gauge-pass-drift-closed-loop-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Closed-loop learning with differential +/- pass drift
+        run: >-
+          python damping_gauge_pass_drift_closed_loop.py
+          --functional-arbors FunctionalArbors
+          --seed-start 472 --seeds 6
+          --lag 20 --steps 210
+          --max-candidates 8 --eta .01 --iterations 16
+          --mean-eps .005 --loss-cv .20 --loss-cal-error .05
+          --mirror-alpha .95 --common-drift .02 --readout-noise .05
+          --out runs/damping_gauge_pass_drift_closed_loop/dev_472_477.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: damping-gauge-pass-drift-closed-loop-dev-472-477
+          path: runs/damping_gauge_pass_drift_closed_loop/

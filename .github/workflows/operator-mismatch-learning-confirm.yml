@@ -1,0 +1,30 @@
+name: operator-mismatch-learning-confirm
+
+on:
+  push:
+    paths:
+      - 'OPERATOR_MISMATCH_LEARNING_PREREG_V01.md'
+      - '.github/workflows/operator-mismatch-learning-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python operator_mismatch_learning_probe.py --selftest
+      - name: Fresh held-out seeds 448-459
+        run: python operator_mismatch_learning_probe.py --functional-arbors FunctionalArbors --seed-start 448 --seeds 12 --lag 20 --steps 210 --max-candidates 8 --eta .01 --iterations 40 --out runs/operator_mismatch_learning_confirm/confirm_448_459.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: operator-mismatch-learning-confirm-448-459
+          path: runs/operator_mismatch_learning_confirm/

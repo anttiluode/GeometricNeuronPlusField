@@ -1,0 +1,37 @@
+name: hcn-impedance-refine
+
+on:
+  push:
+    paths:
+      - '.github/workflows/hcn-impedance-refine.yml'
+  workflow_dispatch:
+
+jobs:
+  refine:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_impedance_probe.py --selftest
+      - name: Low-band refinement bodies 556-559
+        run: >-
+          python hcn_impedance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 556 --seeds 4
+          --g0s 0.02,0.04,0.08
+          --ratios 5,7,10
+          --taus 2,4,6
+          --omegas 0.02,0.03,0.04,0.05,0.06,0.08
+          --nshuffle 4
+          --out runs/hcn_impedance_refine/dev_556_559.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hcn-impedance-refine-556-559
+          path: runs/hcn_impedance_refine/

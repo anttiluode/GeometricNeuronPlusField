@@ -1,0 +1,37 @@
+name: matched-tuner-trust-confirm
+
+on:
+  push:
+    paths:
+      - 'MATCHED_TUNER_TRUST_CONFIRM_PREREG_V01.md'
+      - 'matched_tuner_trust.py'
+      - '.github/workflows/matched-tuner-trust-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python matched_tuner_trust.py --selftest
+      - name: delta 0.001 fresh seeds 312-323
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 312 --seeds 12 --P 8 --delta 0.001 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_confirm/d001.json
+      - name: delta 0.0025 fresh seeds 312-323
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 312 --seeds 12 --P 8 --delta 0.0025 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_confirm/d0025.json
+      - name: delta 0.005 fresh seeds 312-323
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 312 --seeds 12 --P 8 --delta 0.005 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_confirm/d005.json
+      - name: delta 0.010 fresh seeds 312-323
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 312 --seeds 12 --P 8 --delta 0.010 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_confirm/d01.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matched-tuner-trust-confirm-312-323
+          path: runs/matched_tuner_trust_confirm/

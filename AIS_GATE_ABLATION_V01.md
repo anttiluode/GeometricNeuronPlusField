@@ -1,4 +1,6 @@
-# AIS gating-memory ablation v0.1 — fast activation is dispensable; instantaneous h or n collapses spiking
+# AIS gating-memory ablation v0.1 — historical receipt; h/n arms are now classified as dead-arm controls
+
+> **Interpretation update (Claude audit):** the raw receipt below is retained, but the old wording that independent `h(t)` / `n(t)` history was shown to be dynamically necessary for *this frequency-selection mechanism* is superseded by [`AIS_CLAUDE_AUDIT_V01.md`](AIS_CLAUDE_AUDIT_V01.md).  An independent standard-HH drive sweep reproduced the key asymmetry and showed that making `h` or `n` instantaneous abolishes repetitive firing across the operating sweep.  Those are therefore **dead arms by construction**, not interpretable frequency-mechanism ablations.  The `m`-instantaneous arm remains informative because it stays excitable.  See also [`AIS_N_ISI_V01.md`](AIS_N_ISI_V01.md).
 
 Canonical run: `31243133327`
 
@@ -35,7 +37,7 @@ So the finite response time of the fast Na activation gate affects gain, but mos
 
 That is a useful negative result: the observed frequency selection is not simply the finite activation lag of the sodium conductance.
 
-## The registered h/n ablations hit an exposure wall
+## The h/n ablations are exposure failures, not mechanism findings
 
 Making either slower gate instantaneous collapsed the active compartment completely at the frozen operating point:
 
@@ -45,38 +47,29 @@ n_instant      0 events in 24/24 bodies
 all_instant    0 events in 24/24 bodies
 ```
 
-Per the preregistration, this **cannot** be interpreted as “h is the frequency filter” or “n is the frequency filter.”  The shape is undefined when the model emits nothing.
+The preregistration already prohibited assigning a frequency-selection shape to a silent arm.  Claude's later standard-HH check strengthens that caution: instantaneous `h` or `n` removes the normal HH timescale separation required for repetitive spiking over a broad drive sweep.
 
-What it does establish is narrower:
+Therefore these rows establish only that **the ablated equations no longer occupy a comparable excitable regime**. They do *not* identify `h` or `n` memory as the source of the observed frequency allocation.
 
-> **Independent Na-inactivation and K-activation/recovery dynamics are not decorative state variables in this boundary.  Replacing either by its instantaneous voltage equilibrium destroys the spiking regime reached by the unchanged soma drive, whereas removing fast-m activation memory does not.**
+A valid ablation interpretation would first have to restore a matched firing regime without using the frequency profile as the tuning target, and only then compare allocation shapes.
 
-The reason is mechanistically plausible within HH equations: an instantaneous `h_inf(V)` can remove Na availability too aggressively during depolarization, while instantaneous `n_inf(V)` can recruit K current too aggressively.  But that explanation should be tested through kinetics rather than asserted from the collapse.
+## Why this blocks geometry co-adaptation
 
-## Why this blocks geometry co-adaptation for now
+The active v0.2 timing test did not earn a precision role, and the h/n instantaneous arms do not isolate a usable active mechanism.  Moving or stretching an AIS-like segment around these results would therefore add degrees of freedom around null/dead-arm observations.
 
-We now have two separate facts:
+## Follow-up that was actually run
 
-1. v0.2: the full stateful gate does **not** improve rate-matched phase precision beyond its own linearization;
-2. this ablation: slow h/n history is necessary to maintain the active spiking regime, but the all-or-none collapse prevents attribution of the frequency-allocation shape to either gate.
-
-So moving or stretching an AIS-like segment now would be premature.  We still do not have a clean active variable for geometry to tune.
-
-## Next clean test
-
-Do not delete h or n.  Change only their **kinetic speed** while preserving their steady-state voltage curves and all conductances:
+Rather than rescuing the dead arms by arbitrary conductance tuning, the next experiment changed only gate kinetic speed while preserving the steady-state curves and conductances:
 
 ```text
 h kinetics x 0.5, x 1, x 2
 n kinetics x 0.5, x 1, x 2
 ```
 
-No gain retuning.
+That registered passband-shift prediction also failed; `n` was strongly consequential for excitability but did not translate a clean frequency band.  See [`AIS_KINETICS_V01.md`](AIS_KINETICS_V01.md).
 
-If the center/shape of the output frequency allocation moves systematically when h or n kinetics are sped up or slowed down, then we have direct evidence that the active state timescale itself is setting a temporal pass region.
-
-That is the quantity worth taking into a later body/AIS co-adaptation experiment.
+The subsequent preregistered minimum-ISI test also rejected a simple `n`-sets-refractory-period account. See [`AIS_N_ISI_V01.md`](AIS_N_ISI_V01.md).
 
 ## Wall sentence
 
-> **Fast Na activation memory is largely unnecessary for the observed frequency-allocation shape, but slow Na inactivation and K recovery cannot be made instantaneous without destroying spiking.  The next question is therefore not whether h/n matter, but whether their time constants set the event-selection band.**
+> **The m-instantaneous arm is a useful negative control because it remains excitable. The h- and n-instantaneous arms are dead-arm controls: their silence cannot identify the normal frequency-selection role of those gates.**

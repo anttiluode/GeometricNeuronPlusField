@@ -1,4 +1,4 @@
-# Hardware prior-art map v0.1 — where this repo sits after the reciprocal-adjoint result
+# Hardware prior-art map v0.2 — where this repo sits after the reciprocal-adjoint result
 
 The exact same-medium adjoint should not be presented as a new learning principle. There is already a substantial physical-backpropagation literature.
 
@@ -32,7 +32,22 @@ That is very close to the hardware class suggested by `GeometricNeuronPlusField`
 
 The paper describes/proposes and numerically trains the transmission-line networks; unlike Pai et al., it should not be cited here as an experimental fabrication of this exact 2D-grid architecture unless a later hardware paper establishes that.
 
-## 4. What is therefore NOT novel here
+## 4. Park, Miller & Chung 2026 — broadband time-domain adjoint memory is already an active problem
+
+Mingyu Park, Owen D. Miller, and Haejun Chung,
+**“Nyquist-Sampled Time-Domain Adjoint FDTD for Memory-Efficient Broadband Nanophotonic Inverse Design,”** arXiv:2607.08159 (2026).
+
+This very recent work attacks essentially the same **forward-history memory bottleneck** that appeared in `TIME_DOMAIN_IN_SITU_WALL.md`, but for broadband nanophotonic inverse design rather than physical in-situ training. Instead of storing every FDTD time step, they store forward fields only at Nyquist-compliant temporal intervals and accumulate the adjoint gradient using that sparse history. They report negligible gradient error at compliant sampling and memory reductions up to 107× across their benchmarks.
+
+This matters for claim discipline:
+
+> **“Broadband time-domain adjoints do not need every raw time step” is not new here either.**
+
+Our narrower difference is the representation and hardware target. The current repo compresses the delayed local correlation into a **small common set of boundary-selected coherent spectral channels** and then demonstrates closed-loop learning using only those channels. Park et al. sparsify the stored time history according to bandlimit/Nyquist requirements in a numerical FDTD inverse-design workflow.
+
+A related 2026 time-domain topology-optimization literature also uses temporal convolution / the convolution theorem to isolate spectral-band gradient contributions. So frequency-domain decomposition of time-domain adjoints should be treated as established mathematics, not a novelty claim by itself.
+
+## 5. What is therefore NOT novel here
 
 Do not claim novelty for:
 
@@ -42,27 +57,29 @@ same-device forward and backward propagation
 local forward/adjoint overlap as a parameter gradient
 wave-interference computing in a tunable 2D medium
 continuous local reactive/coupling parameters as learned state
+broadband time-domain adjoint memory reduction in general
+frequency/convolution decomposition of time-domain adjoint correlations in general
 ```
 
 There is already strong prior art for all of those themes.
 
-## 5. What this repo may still contribute
+## 6. What this repo may still contribute
 
 The current branch has several narrower wrinkles that are not erased by that prior art.
 
-### A. Broadband finite-time rather than single-tone / steady-state training
+### A. Broadband finite-time **physical-replay** framing
 
-The FunctionalArbor task is a damped transient temporal-order problem. The exact adjoint is therefore a **time-reversed derivative waveform**, not merely a second same-frequency phasor excitation.
+The FunctionalArbor task is a damped transient temporal-order problem. The exact adjoint is a **time-reversed derivative waveform physically replayable through the same reciprocal medium**, not merely an offline numerical adjoint solve.
 
-That exposed a delayed local-correlation problem that is largely absent in a single-tone steady-state derivation.
+### B. Port-selected spectral compression of the delayed local correlation
 
-### B. Spectral compression of the delayed local correlation
+`SPECTRAL_CORRELATION_COMPRESSION_V01.md` shows that the exact 210-sample local time correlation can be decomposed into frequency-bin products, and on held-out bodies about 13/210 bins carry 95% of the absolute gradient mass. A common K=8 or K=16 frequency set can be selected from boundary signals alone rather than from per-bond internal oracle inspection.
 
-`SPECTRAL_CORRELATION_COMPRESSION_V01.md` shows that the exact 210-sample local time correlation can be decomposed into frequency-bin products, and on held-out bodies about 13/210 bins carry 95% of the absolute gradient mass. A common K=8 or K=16 frequency set can be selected from boundary signals alone.
-
-### C. Closed-loop learning from the compressed broadband gradient
+### C. Closed-loop learning from the compressed broadband physical-gradient surrogate
 
 `SPECTRAL_GRADIENT_LEARNING_V01.md` shows that the K=8 compressed gradient retains 85.8% of the exact learner's group gain on fresh bodies, while K=16 essentially preserves it under the registered finite-step optimizer.
+
+`DEVICE_ERROR_LEARNING_V01.md` further shows that this compressed learner remains useful under the repo's explicit device-inspired coherent-readout error model.
 
 ### D. Continuous graded spatial coupling is empirically important in this particular transient mesh
 
@@ -74,10 +91,10 @@ The repo already knows where **not** to claim superiority: direct free modal/pol
 
 So any hardware advantage must be measured in physical cost rather than mathematical parameter count.
 
-## 6. The useful claim boundary
+## 7. The useful claim boundary
 
 A defensible current description is:
 
-> **GeometricNeuronPlusField is now a transient/broadband differentiable reciprocal-scattering-mesh testbed. Its general adjoint-training principle is established prior art; the active research question is how cheaply a distributed physical mesh can measure and apply broadband local gradients, and whether local physical implementation wins under a real hardware cost model.**
+> **GeometricNeuronPlusField is now a transient/broadband differentiable reciprocal-scattering-mesh testbed. Its general adjoint-training and time-domain-compression mathematics have substantial prior art; the active research question is whether a distributed physical mesh can realize a compact port-selected local gradient measurement cheaply enough to win under a real hardware cost model.**
 
 That is a much stronger place to work from than pretending the entire mechanism was newly invented here.

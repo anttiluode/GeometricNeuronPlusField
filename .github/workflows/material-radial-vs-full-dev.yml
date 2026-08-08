@@ -1,0 +1,35 @@
+name: material-radial-vs-full-dev
+on:
+  push:
+    paths:
+      - 'material_radial_vs_full.py'
+      - '.github/workflows/material-radial-vs-full-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Optimize distance-shell and full material on development bodies 622-627
+        run: >-
+          python material_radial_vs_full.py
+          --functional-arbors FunctionalArbors
+          --seed-start 622 --seeds 6
+          --omegas 0.03,0.04 --tau 2 --mu 0.5
+          --g0 0.005 --ratio 10
+          --full-steps 50 --radial-steps 120
+          --step-fraction 0.10
+          --out runs/material_radial_vs_full/dev_622_627.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: material-radial-vs-full-dev-622-627
+          path: runs/material_radial_vs_full/

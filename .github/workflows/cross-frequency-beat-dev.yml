@@ -1,0 +1,37 @@
+name: cross-frequency-beat-dev
+
+on:
+  push:
+    paths:
+      - 'cross_frequency_beat_probe.py'
+      - '.github/workflows/cross-frequency-beat-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Two-tone cross-frequency development bodies 616-621
+        run: >-
+          python cross_frequency_beat_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 616 --seeds 6
+          --pairs '0.10,0.13;0.16,0.19;0.24,0.27;0.36,0.39;0.12,0.16;0.20,0.24;0.32,0.36;0.48,0.52'
+          --train-omegas 0.03,0.04
+          --tau 2 --mu 0.5 --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10 --nshuffle 8
+          --out runs/cross_frequency_beat/dev_616_621.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cross-frequency-beat-dev-616-621
+          path: runs/cross_frequency_beat/

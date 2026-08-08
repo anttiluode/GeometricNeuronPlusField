@@ -1,0 +1,30 @@
+name: biological-return-code-dev
+
+on:
+  push:
+    paths:
+      - 'biological_return_code_probe.py'
+      - '.github/workflows/biological-return-code-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python biological_return_code_probe.py --selftest
+      - name: Development bodies 492-497
+        run: python biological_return_code_probe.py --functional-arbors FunctionalArbors --seed-start 492 --seeds 6 --lag 20 --steps 210 --out runs/biological_return_code/dev_492_497.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: biological-return-code-dev-492-497
+          path: runs/biological_return_code/

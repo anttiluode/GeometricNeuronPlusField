@@ -1,0 +1,37 @@
+name: material-cap-robustness
+
+on:
+  push:
+    paths:
+      - 'material_cap_robustness.py'
+      - '.github/workflows/material-cap-robustness.yml'
+  workflow_dispatch:
+
+jobs:
+  caps:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Cap robustness on development bodies 580-583
+        run: >-
+          python material_cap_robustness.py
+          --functional-arbors FunctionalArbors
+          --seed-start 580 --seeds 4
+          --caps 0.035,0.05,0.075,0.10
+          --omegas 0.03,0.04
+          --tau 2 --mu 0.5 --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10
+          --out runs/material_cap_robustness/dev_580_583.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-cap-robustness-580-583
+          path: runs/material_cap_robustness/

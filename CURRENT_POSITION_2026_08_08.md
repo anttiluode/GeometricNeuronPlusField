@@ -1,188 +1,178 @@
 # Current position — 2026-08-08
 
-This file is the compact checkpoint after the graph-mode, soma-interference, structural-adjoint, prior-art, and matched-baseline sequence.
+This is the canonical checkpoint after the graph-mode, soma-interference, structural-adjoint, prior-art, hardware-mapping, and scale-invariant benchmark sequence.
 
-## 1. What the forward system is
+## 1. Frozen forward system = geometrically constrained pole bank
 
-For frozen morphology/couplings, the mature model is a reciprocal damped linear wave/scattering operator. Its full finite-dimensional transfer is exactly diagonalizable into independent damped modal oscillators.
+For frozen couplings the mature model is a reciprocal damped linear wave/scattering operator. Its full finite-dimensional transfer diagonalizes exactly into independent damped modal oscillators.
 
-Therefore:
+`POLE_CONTAINMENT_V01.md` verified the exact weighted 31x31 spatial simulation and its 961-mode pole reconstruction agree to floating-point precision.
 
-> **The linear graph wave is exactly a pole/residue bank in a geometrically constrained parameterization.**
+> **Geometry does not escape the pole-bank function class. It ties poles and residues together through local physical parameters.**
 
-This was verified numerically at floating-point precision by `POLE_CONTAINMENT_V01.md`.
+## 2. Soma = local quadratic mode mixer
 
-The useful role of geometry is not to escape the pole-bank function class. Geometry ties many poles and residues together through local physical parameters.
-
-## 2. What the soma readout is doing
-
-The local readout
+The point readout
 
 ```text
-y_s = |psi_s|^2
+y_s = |psi_s|^2 = q* K_s q
+K_s = v_s v_s^T
 ```
 
-becomes, in modal coordinates,
+intrinsically mixes modal pairs. About 97-98% of the absolute order-sensitive pair mass is off-diagonal.
 
-```text
-y_s = q* K_s q
-K_s = v_s v_s^T.
-```
-
-It is therefore an intrinsic rank-one **mode mixer**. The order-sensitive computation is overwhelmingly in off-diagonal cross-mode terms.
-
-The constant body mode is nearly order-blind alone but acts as a large common/reference component. The best language is:
+Mode 0 is nearly order-blind alone but acts as a large common/reference component. The clean language is:
 
 > **reference-assisted square-law / self-homodyne-like mode mixing.**
 
-Do not claim a literal heterodyne local oscillator or literal Moire pattern without additional evidence.
+Do not claim a literal heterodyne local oscillator or literal Moire pattern without more evidence.
 
-## 3. Which modes matter to the real local computation
+## 3. The consequential direct control modes are low body resonances
 
-The earlier graph-mode microscope found modes 18-20 informative when read individually.
+The old mode microscope found modes 18-20 informative **when observed alone**. That is not the same observable as the actual soma square-law readout.
 
-The exact soma pair decomposition later showed that the actual point-square computation is concentrated largely in lower modes, with mode 0 as the common/reference hub.
+The exact soma pair decomposition found most interaction involvement in modes 0-17. Independently, the strongest direct spectral optimizer selected only body modes **1-16**. Full-grid selected modes map to the old 70-cell body modes with minimum absolute overlap `>0.999996`.
 
-The strong free-modal optimizer independently selected only body modes **1-16** as its winning direct spectral coordinates. The full-grid-to-body overlaps are >0.999996 in the worst selected case.
+> **Low nonconstant body resonances are the most efficient direct control coordinates for the soma temporal-order interference.**
 
-Thus the benchmark and mechanism analyses converge:
+## 4. Graded coupling survives the missing selection control
 
-> **Low nonconstant body resonances are the most efficient direct control coordinates for the soma's temporal-order interference.**
+Binary one-cell edits are far outside the exact adjoint's local differential regime.
 
-## 4. What structural edits taught us
-
-A one-cell binary edit is far outside the local differential regime of the exact adjoint. That explains why earlier local eligibility attempts struggled.
-
-However, the missing random-selection control now passes:
+But on fresh seeds276-287, 72 frontier additions chosen **before inspecting gradient sign** gave:
 
 ```text
-random frontier additions                  72
-interior optimum                           53/72 = 73.6%
-median interior alpha                      0.15
-slope reversal                             87.5%
+interior optimum                 53/72 = 73.6%
+median interior alpha            0.15
+slope reversal                   87.5%
 ```
 
-So graded coupling was enriched by selecting positive initial gradients, but not created by that selection.
+So gradient conditioning enriches the interior-optimum effect but does not create it.
 
 > **Conductance magnitude itself is commonly a computational degree of freedom in this model.**
 
-## 5. What the exact credit mechanism is
+## 5. Exact credit = local forward x adjoint overlap
 
-For a local coupling, the exact adjoint sensitivity is a local overlap of the forward field difference and the adjoint field difference across that bond.
+For a local coupling, exact sensitivity is a local overlap of the forward and adjoint field differences across that bond.
 
-Because the spatial operator is reciprocal, the particular discrete adjoint field required by the bond gradient can be generated by the **same damped physical medium**, driven from the soma with the objective-derivative waveform in reversed task time.
+Because the spatial operator is reciprocal, the required discrete adjoint can be generated by the **same damped physical medium**, driven from the soma with the objective-derivative waveform in reversed task time.
 
-Fresh numerical identity:
-
-```text
-bond sensitivity map     same-medium replay == algorithmic adjoint to ~1e-15
-```
-
-This is not a newly invented general training principle. It belongs to the established physical-adjoint / in-situ-backpropagation literature, including Hermans et al. (2015), Hughes et al. (2018, TRIM), and Pai et al. (2023).
-
-## 6. Reciprocity: the precise statement
-
-Do not write:
+Fresh same-medium replay vs algorithmic adjoint:
 
 ```text
-reciprocity = no temporal arrow.
+bond-map error ~1e-15.
 ```
 
-Reciprocity is a spatial operator symmetry. A damped reciprocal causal system is not naively time-reversal invariant, and distinct sources can have distinct histories to a common readout.
+This is not a newly invented general training principle. It belongs to established physical-adjoint / in-situ-backpropagation work.
+
+## 6. Reciprocity is not “no time arrow”
+
+Reciprocity is a spatial operator symmetry. A damped causal reciprocal system is not naively time-reversal invariant, and two distinct sources can have distinct transfer histories to a common readout.
 
 The useful statement is:
 
 > **Reciprocity constrains directional spatial transport and buys direct physical reuse of the forward operator for the adjoint.**
 
-The same-medium exact adjoint is therefore especially strong for engineered reciprocal media. It is not established as a neuronal learning mechanism.
+This exact same-medium learning mechanism is strongly relevant to engineered reciprocal media. It is not established as neuronal plasticity.
 
-## 7. What prior art already owns
+The broader forward neuron analogy is not mathematically killed: passive dendritic cable transfer is itself reciprocal in the linear regime. What fails is any automatic inference from this exact engineering adjoint to biological credit assignment across active, nonlinear, directional synaptic systems.
 
-The project should no longer imply novelty for these broad ideas:
+## 7. Prior art owns the broad physical-computing principle
 
-```text
-wave propagation as recurrent temporal computation
-reciprocal physical backpropagation
-physical adjoint optimization of wave media
-forward/backward interference gradient measurement
-2D tunable wave/metamaterial neuromorphic networks
-```
+`PRIOR_ART_MAP_2026.md` now records:
 
-Relevant anchors now documented in `PRIOR_ART_MAP_2026.md`:
-
-- Hermans et al. 2015 — reciprocal dynamical hardware and physical temporal backpropagation;
-- Hughes et al. 2018 — photonic TRIM / in-situ gradient measurement;
+- Hermans et al. 2015 — reciprocal dynamical hardware and physical temporal backpropagation using time-reversed external error signals;
+- Hughes et al. 2018 — photonic TRIM / in-situ internal gradient measurement;
 - Hughes et al. 2019 — wave physics as analog RNN;
 - Pai et al. 2023 — experimental silicon in-situ backpropagation;
-- Thakkar & Grbic 2026 — tunable 2D transmission-line metamaterial neuromorphic circuits with in-situ training.
+- Li & Mao 2024 — fabricated mechanical networks with bond-local forward x adjoint stiffness gradients;
+- Thakkar & Grbic 2026 — tunable 2D transmission-line metamaterial neuromorphic networks with in-situ training.
 
-The last item is especially close to the present hardware direction.
+Do not claim novelty for wave recurrent computing, reciprocal physical backprop, time-reversed error propagation, or local forward/adjoint gradient measurement.
 
-## 8. The definitive abstract-scalar benchmark is negative for local geometry
+## 8. The first matched-tuner benchmark had a coordinate-scale confound
 
-The matched-tuner test gave the local medium every physical bond as a candidate and compared eight selected local bond tuners against eight selected direct modal coordinates, with identical training/evaluation budgets.
+The original held-out comparison used eight local bond coordinates and eight free spectral coordinates with the same numerical `eta=.01`. Under those declared rules the free arm won 12/12 bodies by a large margin.
 
-Held-out seeds 288-299:
-
-```text
-mean base test C                -0.020657
-G8 local bonds                  +0.028492
-F8 free spectral                +0.168527
-
-mean free-minus-graph gain      +0.140035
-free beats graph                12/12
-```
-
-This is decisive.
-
-> **Local geometric coordinates do not beat direct spectral coordinates per abstract trainable scalar on this fixed-source temporal task.**
-
-Ablation makes the result harder to dismiss:
+That numerical result is real, but `SPECTRAL_TO_LOCAL_COMPILER_V01.md` exposed a fairness problem:
 
 ```text
-pole-frequency only             beats graph 12/12
-input/output residues only      beats graph 12/12
-pole + soma residue             beats graph 12/12
-full spectral                   beats graph 12/12
+one unit of free-coordinate tangent
+~ 14.9 units of the best local-rho tangent in median amplitude,
 ```
 
-Do not weaken the free baseline to rescue a graph-performance claim.
+while the task-space **shape** of 90.6% of winning free directions could be matched to <10% relative error by one feasible local bond direction across 25 lags.
 
-## 9. But mathematical scalar count is not physical actuator count
+Therefore equal numerical `eta` was not an equal functional trust step.
 
-The winning spectral variables are strongly nonlocal in the nearest-neighbour physical basis.
+`MATCHED_TUNER_CONFIRM_V01.md` is retained as an optimizer-coordinate result, not as a definitive “free wins per scalar” theorem.
 
-For selected pure pole coordinates:
+## 9. Scale-invariant benchmark: small-step parity, then crossover
+
+Fresh seeds312-323 used coordinate-scale-invariant updates: every iteration in both arms was normalized to the same predicted RMS change of the three training-lag output vector.
+
+Held-out test means:
 
 ```text
-mean participation                      ~29.9 nodes
-nearest-neighbour operator residual LB  ~0.953
-minimum residual LB                     ~0.906
+delta      graph        free        free-graph
+.001       0.06497      0.05019      -0.01478
+.0025      0.09716      0.09527      -0.00189
+.005       0.12830      0.13496      +0.00666
+.010       0.13306      0.17621      +0.04315
 ```
 
-For selected residue coordinates:
+Registered small/intermediate parity tests passed. The registered crossover magnitude passed. The stronger `.01` spectral-dominance criterion failed (`+.043 < +.050`, 8/12 rather than 9/12 free wins).
+
+> **At matched small task-space trust radii, local physical bonds and direct spectral coordinates are similarly effective. Relative performance shifts toward the spectral chart as the permitted step grows, but the preregistered strong endpoint-dominance claim did not confirm.**
+
+## 10. The reason for the crossover is now directly measured: curvature
+
+Fresh seeds324-335 moved one selected coordinate at a time and compared the actual seven-lag response with its own initial first-order tangent.
+
+Median relative linearization error:
 
 ```text
-mean participation                      ~36.9 nodes
-best one-node vector residual           ~0.975
+delta      local graph      free spectral      ratio
+.001         0.0802            0.00406          19.8x
+.0025        0.2203            0.01001          22.0x
+.005         0.4636            0.01957          23.7x
+.010         0.7997            0.03626          22.1x
 ```
 
-Thus:
+All five preregistered curvature tests passed; no probe was bound-clipped.
 
-> **Spectral coordinates are better optimization coordinates; local bonds are the natural physical coordinates.**
+Median direction cosine at `.01` is still high (`graph 0.9943`, `free 0.99998`), so much of the local error initially appears as wrong gain/distance along an otherwise useful direction, with a minority of severe directional failures.
 
-The remaining benchmark is a compiler/hardware-cost benchmark, not another abstract expressivity contest.
+> **The main disadvantage of local physical coordinates is not first-order direction. It is curvature. Direct modal coordinates are much straighter coordinates of the linear dynamics; local bonds form a highly curved physical chart over those modal dynamics.**
 
-## 10. Hardware mapping is direct
+This unifies the old alpha-sweep, random interior optima, and the scale-invariant benchmark.
+
+## 11. Spectral coordinates are globally nonlocal as operators, even when task tangents look local
+
+Selected pure pole coordinates have nearest-neighbour operator residual lower bound around `0.95`; selected residue coordinates have best-one-node residual around `0.97`.
+
+So a pure spectral coordinate is not one physical local actuator.
+
+Yet on this low-dimensional task manifold a local bond tangent can often shadow its functional direction. These are not contradictory statements:
+
+```text
+global operator deformation
+can have
+locally reproducible effect on a small observed task manifold.
+```
+
+The physical compiler question is therefore about **actuation range, curvature, and number of relinearization passes**, not only support.
+
+## 12. Hardware mapping is direct
 
 The toy equation
 
 ```text
 psi_ddot_i + gamma psi_dot_i + rho psi_i
-+ c sum_j k_ij (psi_i-psi_j) = s_i(t)
++ c sum_j k_ij(psi_i-psi_j) = s_i(t)
 ```
 
-maps directly to a reciprocal lumped LC network using node flux:
+maps to a reciprocal lumped LC network using node flux:
 
 ```text
 C0 Phi_ddot_i + G0 Phi_dot_i + Phi_i/L0
@@ -199,51 +189,46 @@ c k_ij      = 1/(C0 L_ij).
 
 It also maps directly to a damped mass-spring network.
 
-This gives meaningful device-error coordinates: coupling calibration/quantization, loss/Q variation, onsite resonance disorder, timing jitter in the returned error waveform, local measurement noise, and drift.
+Meaningful device errors are therefore coupling calibration/quantization, loss/Q variation, onsite resonance disorder, error-wave timing/bandwidth, local measurement noise, and drift — not an arbitrary optical phase error pasted directly onto `k_e`.
 
-## 11. The extreme coupling ratio is not essential
+## 13. The historical 12,500:1 coupling ratio is not required
 
-Historical model:
+Fresh seeds300-311 tested **100:1** without retraining.
 
-```text
-k_arbor/k_bath = 12,500:1.
-```
-
-Fresh preregistered seeds 300-311 tested **100:1** without retraining.
-
-All four criteria passed:
+All four registered direction/magnitude criteria passed:
 
 ```text
-peak direction retention median        1.00, 9/12 bodies >=.8
-energy direction retention median      1.00, 9/12 bodies >=.8
-peak magnitude ratio median            1.19, 9/12 >=.8
-energy magnitude ratio median          1.62, 11/12 >=.8
+peak direction median retention       1.00
+energy direction median retention     1.00
+peak magnitude ratio median           1.19
+energy magnitude ratio median         1.62
 ```
 
 So the temporal-order computation does not depend on an almost disconnected bath.
 
-## 12. Where novelty can still live
+## 14. Where novelty can still live
 
 Not in “we discovered wave computing” or “we discovered physical backpropagation.”
 
-The surviving architectural questions are narrower and better:
+The surviving questions are narrower:
 
 ```text
-sparse/morphology-like local coupling architecture
+sparse / morphology-like local coupling architecture
 vs generic programmable 2D wave mesh
 
-physical actuator + monitor + calibration cost
-of local geometry
-vs compiler cost of direct spectral control
+extra physical relinearization passes required by a curved local coordinate chart
+vs physical synthesis cost of straighter global spectral coordinates
 
-time-domain pulse-history / temporal-order computation
+local actuator + monitor + calibration cost
+
+robustness and adaptation under damage/drift
+
+time-domain pulse-history / temporal-order operation
 vs mostly steady-state wave-neuromorphic hardware
 
-robustness and adaptation under local damage/drift
-
-multi-port generalization where a local physical operator is reused across many input/output locations.
+multi-port reuse of one physical operator across many input/output locations.
 ```
 
 ## Current wall sentence
 
-> **The project has converged from a neuron analogy onto a physically trainable reciprocal wave computer whose forward task mechanism is low-mode interference and whose exact gradient is the same medium used backward. Those principles have strong prior art; the unresolved contribution is whether morphology-like local geometry offers a compelling physical compiler, robustness, or multi-port advantage over generic wave meshes and globally optimal spectral control.**
+> **The project has converged onto a reciprocal physical wave computer whose forward task is low-mode interferometric mixing and whose exact gradient can be generated by the same medium backward. The general principle has substantial prior art. What remains distinctive is the geometry of the physical parameterization: local bond coordinates point in useful task directions but are ~20x more curved than direct modal coordinates, creating a measurable compiler/training-cost trade between cheap local actuation and straighter global spectral control.**

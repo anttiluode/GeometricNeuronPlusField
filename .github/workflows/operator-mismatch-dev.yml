@@ -1,0 +1,30 @@
+name: operator-mismatch-dev
+
+on:
+  push:
+    paths:
+      - 'operator_mismatch_probe.py'
+      - '.github/workflows/operator-mismatch-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  mismatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python operator_mismatch_probe.py --selftest
+      - name: Reused development seeds 400-403
+        run: python operator_mismatch_probe.py --functional-arbors FunctionalArbors --seed-start 400 --seeds 4 --lag 20 --steps 210 --reps 6 --out runs/operator_mismatch/dev_400_403.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: operator-mismatch-dev-400-403
+          path: runs/operator_mismatch/

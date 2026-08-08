@@ -10,12 +10,14 @@ on:
       - 'modal_locality.py'
       - 'local_observability_probe.py'
       - 'task_bottleneck_probe.py'
+      - 'ais_active_probe.py'
+      - 'AIS_ACTIVE_PREREG_V01.md'
       - '.github/workflows/graph-mode-probe.yml'
 
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout GeometricNeuronPlusField
         uses: actions/checkout@v4
@@ -34,6 +36,9 @@ jobs:
 
       - name: Selftest
         run: python graph_mode_probe.py --selftest
+
+      - name: Active AIS boundary selftest
+        run: python ais_active_probe.py --selftest
 
       - name: Canonical discovery set, seeds 0-11
         run: >-
@@ -91,6 +96,18 @@ jobs:
           --random-controls 250
           --out runs/task_bottleneck/task_bottleneck.json
 
+      - name: Active AIS boundary, seeds 0-23
+        run: >-
+          python ais_active_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --lag 20
+          --task-steps 180
+          --freq-steps 640
+          --burn 160
+          --out runs/ais_active/ais_active.json
+
       - name: Upload discovery receipts
         uses: actions/upload-artifact@v4
         with:
@@ -126,3 +143,9 @@ jobs:
         with:
           name: task-bottleneck-24
           path: runs/task_bottleneck/
+
+      - name: Upload active AIS boundary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ais-active-boundary-24
+          path: runs/ais_active/

@@ -1,0 +1,30 @@
+name: spectral-to-local-compiler
+
+on:
+  push:
+    paths:
+      - 'spectral_to_local_compiler.py'
+      - '.github/workflows/spectral-to-local-compiler.yml'
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python spectral_to_local_compiler.py --selftest
+      - name: Descriptive task-space compiler on opened benchmark bodies
+        run: python spectral_to_local_compiler.py --functional-arbors FunctionalArbors --seed-start 288 --seeds 12 --P 8 --train-lags 16,20,24 --out runs/spectral_to_local_compiler/compiler_288_299.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spectral-to-local-compiler-288-299
+          path: runs/spectral_to_local_compiler/

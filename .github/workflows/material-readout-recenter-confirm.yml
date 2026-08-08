@@ -1,0 +1,42 @@
+name: material-readout-recenter-confirm
+
+on:
+  push:
+    paths:
+      - 'MATERIAL_READOUT_RECENTER_CONFIRM_PREREG_V01.md'
+      - 'material_readout_recenter_confirm.py'
+      - '.github/workflows/material-readout-recenter-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Fresh moved-readout bodies 596-603
+        run: >-
+          python material_readout_recenter.py
+          --functional-arbors FunctionalArbors
+          --seed-start 596 --seeds 8
+          --omegas 0.03,0.04
+          --tau 2 --mu 0.5 --g0 0.005 --ratio 10
+          --steps 50 --step-fraction 0.10
+          --out runs/material_readout_recenter_confirm/receipt_596_603.json
+      - name: Evaluate frozen recentering criteria
+        run: >-
+          python material_readout_recenter_confirm.py
+          --receipt runs/material_readout_recenter_confirm/receipt_596_603.json
+          --out runs/material_readout_recenter_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: material-readout-recenter-confirm-596-603
+          path: runs/material_readout_recenter_confirm/

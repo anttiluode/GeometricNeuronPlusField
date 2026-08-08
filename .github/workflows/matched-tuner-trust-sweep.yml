@@ -1,0 +1,35 @@
+name: matched-tuner-trust-sweep
+
+on:
+  push:
+    paths:
+      - '.github/workflows/matched-tuner-trust-sweep.yml'
+  workflow_dispatch:
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python matched_tuner_trust.py --selftest
+      - name: delta 0.001
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --P 8 --delta 0.001 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_sweep/d001.json
+      - name: delta 0.0025
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --P 8 --delta 0.0025 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_sweep/d0025.json
+      - name: delta 0.005
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --P 8 --delta 0.005 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_sweep/d005.json
+      - name: delta 0.01
+        run: python matched_tuner_trust.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --P 8 --delta 0.01 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_trust_sweep/d01.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matched-tuner-trust-sweep-240-243
+          path: runs/matched_tuner_trust_sweep/

@@ -1,0 +1,35 @@
+name: return-gate-spectral-confirm
+
+on:
+  push:
+    paths:
+      - 'RETURN_GATE_SPECTRAL_CONFIRM_PREREG_V01.md'
+      - 'return_gate_spectral_mechanism.py'
+      - 'return_gate_spectral_confirm.py'
+      - '.github/workflows/return-gate-spectral-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python return_gate_spectral_mechanism.py --selftest
+      - name: Fresh bodies 540-551
+        run: python return_gate_spectral_mechanism.py --functional-arbors FunctionalArbors --seed-start 540 --seeds 12 --lag 20 --steps 210 --out runs/return_gate_spectral_confirm/mechanism_540_551.json
+      - name: Evaluate preregistration
+        run: python return_gate_spectral_confirm.py --receipt runs/return_gate_spectral_confirm/mechanism_540_551.json --out runs/return_gate_spectral_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: return-gate-spectral-confirm-540-551
+          path: runs/return_gate_spectral_confirm/

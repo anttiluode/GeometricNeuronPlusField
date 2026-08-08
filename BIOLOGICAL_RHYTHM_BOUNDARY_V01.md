@@ -67,19 +67,60 @@ That is genuinely reminiscent of the model's local forward-field x return-field 
 
 It is **not** evidence that the returning biological event is the mathematical transpose/adjoint field.
 
-## The key mismatch remains
+### 5. The single-arbor reciprocity issue is subtler than the network reciprocity issue
+
+An earlier version of this note leaned too hard on the fact that chemical synapses are nonreciprocal. That is true for a network, but it is not the decisive objection for this repository because the optimized geometry is a **single dendritic arbor**.
+
+For a linear passive dendritic cable, transfer impedance is reciprocal:
+
+```text
+Z(i,j,omega) = Z(j,i,omega).
+```
+
+This is standard cable theory and remains true for arbitrarily branching passive models; passive dendritic reductions explicitly use this symmetry. See, for example, Major & Evans (*Biophysical Journal*, 1994, DOI `10.1016/S0006-3495(94)80836-7`) and the later Neuron_Reduce formulation (Amsalem et al., *Nature Communications*, 2020, DOI `10.1038/s41467-019-13932-6`).
+
+That means the spatial statement
+
+```text
+forward subthreshold transfer through a passive tree
+and
+reverse subthreshold transfer through the same tree
+```
+
+really can share a reciprocal operator.
+
+This is unexpectedly close to the engineering condition that made the physical adjoint cheap.
+
+The mismatch moves elsewhere:
+
+- real dendrites are not purely passive;
+- channel densities are highly nonuniform;
+- back-propagating action potentials are regenerative nonlinear events, not small reciprocal test waves;
+- dendritic spikes can arise locally;
+- plasticity modifies synapses/channels and morphology, not merely one symmetric linear coupling coefficient;
+- network-level chemical synapses are directional.
+
+So passive cable reciprocity **reopens the single-neuron analogy**, but does not give the biological neuron an exact adjoint for free.
+
+## The key mismatch remains — but it is now correctly located
 
 The exact physical gradient in this repository depends on transpose propagation. Reciprocity is useful because it lets the same physical spatial operator realize that transpose.
 
-Chemical synapses and real neural circuits are strongly nonreciprocal. A back-propagating action potential in one dendritic tree is therefore not equivalent to running the forward network operator backward.
+For the **passive/subthreshold part of one dendritic tree**, biology actually possesses the relevant reciprocal transfer symmetry. For the active return event and the larger circuit, it generally does not preserve the same linear operator.
 
-So the statement
+So the unsupported statement remains
 
 ```text
 brain implements exact in-situ adjoint backpropagation
 ```
 
-is not supported and should not be made.
+but the reason is no longer simply "synapses are one-way."
+
+A better question is:
+
+> **How much of the useful transpose-like spatial credit pattern survives when a reciprocal passive dendritic substrate is driven backward by a biologically coarse, active return event rather than by the exact analog adjoint waveform?**
+
+That is directly testable in this repository.
 
 ## What the new result does suggest
 
@@ -108,7 +149,8 @@ The hippocampal literature independently shows:
 - theta-phase-dependent spike excitability;
 - theta-nested gamma bands;
 - AIS-targeting interneurons with theta/gamma phase structure;
-- local dendritic coincidence between synaptic input and back-propagating spikes.
+- local dendritic coincidence between synaptic input and back-propagating spikes;
+- reciprocal passive transfer inside a dendritic cable approximation.
 
 Those facts make **rhythmic coincidence gating** worth testing. They do not identify the exact signal being demodulated.
 
@@ -164,10 +206,10 @@ For C–F, score:
 - strong-sign agreement;
 - closed-loop learning gain;
 - robustness to timing jitter;
-- dependence on theta/gamma-like scale separation.
+- dependence on slow/fast scale separation.
 
 The important possible outcome is a failure. If a bAP-like event code destroys the gradient, the analogy stops at 'local coincidence'. If a surprisingly coarse phase-windowed code retains useful structural direction, then the next question becomes what information that coarse return is preserving.
 
 ## Current wall sentence
 
-> **The engineering result does not predict that chandelier cells invert a credit wave. It suggests a more general possibility: slow oscillations may define when consequence can alter structure, while faster rhythmic gating can make specific local coincidences stand out from background activity. The closest neuronal return signal is the back-propagating consequence event, not inhibition itself.**
+> **The engineering result does not predict that chandelier cells invert a credit wave. Passive dendritic geometry really is reciprocal enough to make the single-neuron analogy worth reopening; the hard question is whether a coarse biological return event plus oscillatory gating preserves any useful fraction of the transpose-like local credit pattern.**

@@ -1,0 +1,46 @@
+name: hcn-quasiactive-confirm
+
+on:
+  push:
+    paths:
+      - 'HCN_QUASIACTIVE_CONFIRM_PREREG_V01.md'
+      - 'hcn_quasiactive_confirm.py'
+      - '.github/workflows/hcn-quasiactive-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_quasiactive_probe.py --selftest
+      - name: Fresh bodies 568-579
+        run: >-
+          python hcn_quasiactive_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 568 --seeds 12
+          --g0s 0.005
+          --ratios 10
+          --taus 2
+          --mus 0.5
+          --omegas 0.03,0.04
+          --nshuffle 8
+          --out runs/hcn_quasiactive_confirm/receipt_568_579.json
+      - name: Evaluate frozen preregistration
+        run: >-
+          python hcn_quasiactive_confirm.py
+          --receipt runs/hcn_quasiactive_confirm/receipt_568_579.json
+          --out runs/hcn_quasiactive_confirm/verdict.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hcn-quasiactive-confirm-568-579
+          path: runs/hcn_quasiactive_confirm/

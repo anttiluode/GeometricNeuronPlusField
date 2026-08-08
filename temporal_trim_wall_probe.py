@@ -41,16 +41,11 @@ def order_fields(m,wh,wv,seq,weight):
     retro_seq=retro_source_sequence(m,g,reverse=True)
     rp,rv,_=ae.linear_forward(m,wh,wv,retro_seq,store=True)
     T=len(seq)
-    # exact algorithmic adjoint for this weighted energy contribution
     eh,ev=ae.adjoint_grad(m,wh,wv,p,v,weight)
-    # Positive-control physical timeline: at retro state r=1..T use original forward state T-r.
     sh,sv=raw_overlap(m,[p[T-r] for r in range(1,T+1)],[rp[r] for r in range(1,T+1)])
-    # Memory-free simple simultaneous pairing: ordinary forward timeline with retro timeline.
     qh,qv=raw_overlap(m,[p[r-1] for r in range(1,T+1)],[rp[r] for r in range(1,T+1)])
-    # Naive reversed-input attempt: reverse external source sequence, but start medium from rest.
     revseq=list(seq[::-1]);pr,vr,_=ae.linear_forward(m,wh,wv,revseq,store=True)
     rh,rvv=raw_overlap(m,[pr[r-1] for r in range(1,T+1)],[rp[r] for r in range(1,T+1)])
-    # How well did reversed input reproduce the actual reversed local forward state, globally?
     wanted=np.asarray([p[T-r] for r in range(1,T+1)])
     got=np.asarray([pr[r-1] for r in range(1,T+1)])
     hist_rel=float(np.linalg.norm(got-wanted)/(np.linalg.norm(wanted)+1e-30))
@@ -59,8 +54,7 @@ def order_fields(m,wh,wv,seq,weight):
 
 def one(m,lag,steps):
     wh,wv=ae.bond_weights(m,m.body);seqT=ae.source_sequence(m,True,lag,steps);seqD=ae.source_sequence(m,False,lag,steps)
-    # First get unweighted energies for contrast objective weights.
-    _,_,ET=ae.linear_forward(m,wh,wv,seqT,store=False);_,_,ED=ae.linear_forward(m,wh,wv,seqD,store=False)
+    ET=ae.linear_forward(m,wh,wv,seqT,store=False);ED=ae.linear_forward(m,wh,wv,seqD,store=False)
     S=ET+ED+1e-30;aT=2*ED/S**2;aD=-2*ET/S**2
     T=order_fields(m,wh,wv,seqT,aT);D=order_fields(m,wh,wv,seqD,aD)
     def add(name):return (T[name][0]+D[name][0],T[name][1]+D[name][1])

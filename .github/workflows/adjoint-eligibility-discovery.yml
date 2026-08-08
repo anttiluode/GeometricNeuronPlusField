@@ -1,0 +1,31 @@
+name: adjoint-eligibility-discovery
+
+on:
+  push:
+    paths:
+      - 'adjoint_eligibility_probe.py'
+      - 'ADJOINT_ELIGIBILITY_DISCOVERY_PREREG_V01.md'
+      - '.github/workflows/adjoint-eligibility-discovery.yml'
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python adjoint_eligibility_probe.py --selftest
+      - name: Fresh discovery seeds 180-191
+        run: python adjoint_eligibility_probe.py --functional-arbors FunctionalArbors --seed-start 180 --seeds 12 --max-each 6 --out runs/adjoint_eligibility_discovery/adjoint_eligibility_180_191.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adjoint-eligibility-discovery-180-191
+          path: runs/adjoint_eligibility_discovery/

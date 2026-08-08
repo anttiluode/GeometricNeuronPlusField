@@ -1,0 +1,30 @@
+name: lockin-overlap-dev
+
+on:
+  push:
+    paths:
+      - 'lockin_overlap_probe.py'
+      - '.github/workflows/lockin-overlap-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  mechanism:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python lockin_overlap_probe.py --selftest
+      - name: Reanalyze development bodies 472-479
+        run: python lockin_overlap_probe.py --functional-arbors FunctionalArbors --seed-start 472 --seeds 8 --lag 20 --steps 210 --out runs/lockin_overlap/dev_472_479.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lockin-overlap-dev-472-479
+          path: runs/lockin_overlap/

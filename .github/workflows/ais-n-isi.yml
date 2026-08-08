@@ -1,0 +1,45 @@
+name: ais-n-isi
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ais_n_isi_probe.py'
+      - 'AIS_N_ISI_PREREG_V01.md'
+      - '.github/workflows/ais-n-isi.yml'
+
+jobs:
+  isi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: n-kinetics ISI canonical run
+        run: >-
+          python ais_n_isi_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --primary-freq 0.025
+          --freq-steps 640
+          --burn 160
+          --out runs/ais_n_isi/ais_n_isi.json
+
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: ais-n-isi-24
+          path: runs/ais_n_isi/

@@ -1,0 +1,30 @@
+name: interference-factorization-confirm
+
+on:
+  push:
+    paths:
+      - 'INTERFERENCE_FACTORIZATION_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/interference-factorization-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python interference_factorization_probe.py --selftest
+      - name: Held-out seeds 144-155
+        run: python interference_factorization_probe.py --functional-arbors FunctionalArbors --seed-start 144 --seeds 12 --out runs/interference_factorization_confirm/interference_factorization_144_155.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: interference-factorization-confirm-144-155
+          path: runs/interference_factorization_confirm/

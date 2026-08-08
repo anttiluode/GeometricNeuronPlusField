@@ -1,0 +1,30 @@
+name: device-error-learning-confirm
+
+on:
+  push:
+    paths:
+      - 'DEVICE_ERROR_LEARNING_PREREG_V01.md'
+      - '.github/workflows/device-error-learning-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python device_error_learning_probe.py --selftest
+      - name: Fresh held-out seeds 436-447
+        run: python device_error_learning_probe.py --functional-arbors FunctionalArbors --seed-start 436 --seeds 12 --lag 20 --steps 210 --max-candidates 8 --eta .01 --iterations 40 --out runs/device_error_learning_confirm/confirm_436_447.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: device-error-learning-confirm-436-447
+          path: runs/device_error_learning_confirm/

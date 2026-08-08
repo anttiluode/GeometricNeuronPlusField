@@ -2,7 +2,28 @@
 
 The reciprocal-adjoint result triggered the right literature search. Several pieces of the current project have close and important precedents. That is useful: it separates established physical-computing machinery from the parts that still need to earn novelty.
 
-## 1. Hughes et al. 2018 — physical adjoint / TRIM
+## 1. Hermans et al. 2015 — reciprocal dynamical media + physical BPTT
+
+Michiel Hermans, Michaël Burm, Thomas Van Vaerenbergh, Joni Dambre, Peter Bienstman et al., **“Trainable hardware for dynamical computing using error backpropagation through physical media,”** *Nature Communications* 6, 6729 (2015), DOI `10.1038/ncomms7729`.
+
+This is the earliest close temporal precedent found in this search and is extremely relevant to the exact time-reversal result here.
+
+Their theory starts from a reciprocal **linear dynamical system** with time-dependent impulse responses. During the backward phase, source and receiver roles are exchanged; reciprocity supplies the transposed impulse-response operator, while physical time is run forward after **time-reversing the external error/Jacobian signals**. They explicitly state that this physically implements error backpropagation through the same reciprocal system.
+
+They experimentally demonstrate the principle with an **acoustic wave medium** (speaker + 6 m tube + microphone) whose travelling/reflected waves provide the task memory, and they discuss electro-optical extensions.
+
+Thus the broad idea
+
+```text
+time-dependent reciprocal physical medium
++ time-reversed error waveform
++ same hardware used backward
+= physical backpropagation through temporal dynamics
+```
+
+predates the photonic TRIM work. Their experiment trains masks rather than the internal acoustic medium itself, but the temporal same-medium backpropagation principle is already explicit.
+
+## 2. Hughes et al. 2018 — physical adjoint / TRIM for internal photonic parameters
 
 Tyler W. Hughes, Momchil Minkov, Yu Shi, Shanhui Fan, **“Training of photonic neural networks through in situ backpropagation and gradient measurement,”** *Optica* 5(7), 864–871 (2018), DOI `10.1364/OPTICA.5.000864`.
 
@@ -13,9 +34,11 @@ Core overlap:
 - local gradient obtained from forward/adjoint field interference/intensity measurements;
 - gradient cost independent of number of tunable physical parameters.
 
+This is especially close to the **internal bond-gradient** side of our result: the forward and adjoint fields physically meet at the parameter location, so the local overlap exposes the derivative.
+
 Our exact soma-launched time-reversed credit wave therefore belongs to an established physical-adjoint class rather than being a new general training principle.
 
-## 2. Hughes et al. 2019 — wave physics as an analog RNN
+## 3. Hughes et al. 2019 — wave physics as an analog RNN
 
 Tyler W. Hughes, Ian A. D. Williamson, Momchil Minkov, Shanhui Fan, **“Wave physics as an analog recurrent neural network,”** *Science Advances* 5, eaay6946 (2019), DOI `10.1126/sciadv.aay6946`.
 
@@ -31,7 +54,7 @@ So the broad claim
 
 is established prior art.
 
-## 3. Pai et al. 2023 — experimental silicon in-situ backpropagation
+## 4. Pai et al. 2023 — experimental silicon in-situ backpropagation
 
 Sunil Pai et al., **“Experimentally realized in situ backpropagation for deep learning in photonic neural networks,”** *Science* 380(6643), 398–404 (2023), DOI `10.1126/science.ade8450`.
 
@@ -44,7 +67,7 @@ Core overlap:
 
 This establishes that physical adjoint learning is not only a simulation method.
 
-## 4. Thakkar & Grbic 2026 — the closest device-class match found so far
+## 5. Thakkar & Grbic 2026 — the closest device-class match found so far
 
 Shrey Thakkar and Anthony Grbic, **“Wave-based Neuromorphic Circuit Networks: Tunable 2D Transmission-Line Metamaterials,”** *Optical Materials Express* 16(8), 2542–2559 (2026), DOI `10.1364/OME.599576`; arXiv `2606.00194`.
 
@@ -61,27 +84,28 @@ This is a much closer comparison than saying only “photonic MZI meshes exist.�
 
 Important difference: Thakkar/Grbic use **single-tone steady-state** excitation in the description/abstract, whereas this repo's core task is **time-domain pulse history / temporal order** in a damped second-order medium. That temporal distinction may matter.
 
-## 5. Time-domain acoustic/metamaterial adjoints are also established
+## 6. Time-domain acoustic/metamaterial adjoints are also established
 
 For example, Lin et al., **“Topology and shape optimization of broadband acoustic metamaterials and phononic crystals,”** *Acoustical Science and Technology* 38(5), 254–260 (2017), DOI `10.1250/ast.38.254`, uses a **time-dependent adjoint** for topology/shape optimization of acoustic wave media.
 
 So “time-domain wave topology + adjoint sensitivity” is not itself new either.
 
-## 6. What the repo should no longer present as a novelty
+## 7. What the repo should no longer present as a novelty
 
 Do not claim novelty for these broad ideas:
 
 ```text
 wave propagation as recurrent computation
 continuous material/coupling optimization by adjoints
-reciprocal backward physical propagation for gradients
+reciprocal backward physical propagation for temporal gradients
+time-reversing an error waveform to run BPTT through reciprocal dynamics
 forward/backward interference as local gradient measurement
 2D tunable wave grids as neuromorphic hardware
 ```
 
 There is strong prior art for all of them.
 
-## 7. What remains specific and potentially interesting here
+## 8. What remains specific and potentially interesting here
 
 The distinctive package is narrower:
 
@@ -124,7 +148,7 @@ The most useful open engineering question may be:
 
 That is a hardware-architecture question, not a claim to have invented wave-based neural computation.
 
-## 8. The bar just got higher — use that
+## 9. The bar just got higher — use that
 
 The existence of very close prior work is not a reason to abandon the project. It gives us mature baselines and a vocabulary.
 

@@ -1,0 +1,31 @@
+name: bond-response-discovery
+
+on:
+  push:
+    paths:
+      - 'bond_response_probe.py'
+      - 'BOND_RESPONSE_DISCOVERY_PREREG_V01.md'
+      - '.github/workflows/bond-response-discovery.yml'
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python bond_response_probe.py --selftest
+      - name: Fresh discovery seeds 216-227
+        run: python bond_response_probe.py --functional-arbors FunctionalArbors --seed-start 216 --seeds 12 --max-each 6 --out runs/bond_response_discovery/bond_response_216_227.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bond-response-discovery-216-227
+          path: runs/bond_response_discovery/

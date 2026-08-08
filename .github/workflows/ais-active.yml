@@ -5,7 +5,9 @@ on:
   push:
     paths:
       - 'ais_active_probe.py'
+      - 'ais_active_probe_v02.py'
       - 'AIS_ACTIVE_PREREG_V01.md'
+      - 'AIS_ACTIVE_PREREG_V02.md'
       - '.github/workflows/ais-active.yml'
 
 jobs:
@@ -31,9 +33,9 @@ jobs:
       - name: Active boundary selftest
         run: python ais_active_probe.py --selftest
 
-      - name: Active boundary canonical run
+      - name: Active boundary v0.2 canonical run
         run: >-
-          python ais_active_probe.py
+          python ais_active_probe_v02.py
           --functional-arbors FunctionalArbors
           --seed-start 0
           --seeds 24
@@ -41,10 +43,12 @@ jobs:
           --task-steps 180
           --freq-steps 640
           --burn 160
-          --out runs/ais_active/ais_active.json
+          --min-events 4
+          --upper-min-freq 0.05
+          --out runs/ais_active_v02/ais_active_v02.json
 
-      - name: Upload active-boundary receipt
+      - name: Upload active-boundary v0.2 receipt
         uses: actions/upload-artifact@v4
         with:
-          name: ais-active-boundary-24
-          path: runs/ais_active/
+          name: ais-active-boundary-v02-24
+          path: runs/ais_active_v02/

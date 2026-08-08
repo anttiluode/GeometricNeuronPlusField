@@ -9,6 +9,7 @@ on:
       - 'modal_mechanism_probe.py'
       - 'modal_locality.py'
       - 'local_observability_probe.py'
+      - 'task_bottleneck_probe.py'
       - '.github/workflows/graph-mode-probe.yml'
 
 jobs:
@@ -79,6 +80,17 @@ jobs:
           --random-controls 250
           --out runs/local_observability/local_observability.json
 
+      - name: Soma task-bottleneck probe, seeds 0-23
+        run: >-
+          python task_bottleneck_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --lag 20
+          --steps 150
+          --random-controls 250
+          --out runs/task_bottleneck/task_bottleneck.json
+
       - name: Upload discovery receipts
         uses: actions/upload-artifact@v4
         with:
@@ -108,3 +120,9 @@ jobs:
         with:
           name: local-observability-24
           path: runs/local_observability/
+
+      - name: Upload task bottleneck
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-bottleneck-24
+          path: runs/task_bottleneck/

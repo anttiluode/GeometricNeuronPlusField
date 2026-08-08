@@ -67,7 +67,32 @@ Core overlap:
 
 This establishes that physical adjoint learning is not only a simulation method.
 
-## 5. Thakkar & Grbic 2026 — the closest device-class match found so far
+## 5. Li & Mao 2024 — fabricated mechanical networks and the same bond-local product
+
+Shuaifeng Li and Xiaoming Mao, **“Training all-mechanical neural networks for task learning through in situ backpropagation,”** *Nature Communications* 15, 10528 (2024), DOI `10.1038/s41467-024-54849-z`.
+
+This is the clearest mechanical analogue of our local bond-gradient formula found so far.
+
+For a linear spring network with symmetric stiffness matrix `D`, they derive the exact local stiffness gradient as
+
+```text
+grad_i = e_forward,i * e_adjoint,i
+```
+
+where `e_i` is the elongation of bond `i`. They then **fabricate 2D mechanical networks**, physically measure forward and adjoint bond elongations, and recover gradients locally with high experimental accuracy.
+
+The paper also states an important limitation that directly echoes our alpha-sweep result: the learning rule is exact in the **linear / small-deformation regime**; nonlinear deformation degrades the gradient correspondence.
+
+So our dynamic result
+
+```text
+integral over time of
+forward bond difference * adjoint bond difference
+```
+
+is not merely analogous to photonic TRIM. It has a very direct static mechanical sibling that has been physically built and measured.
+
+## 6. Thakkar & Grbic 2026 — the closest device-class match found so far
 
 Shrey Thakkar and Anthony Grbic, **“Wave-based Neuromorphic Circuit Networks: Tunable 2D Transmission-Line Metamaterials,”** *Optical Materials Express* 16(8), 2542–2559 (2026), DOI `10.1364/OME.599576`; arXiv `2606.00194`.
 
@@ -84,13 +109,13 @@ This is a much closer comparison than saying only “photonic MZI meshes exist.�
 
 Important difference: Thakkar/Grbic use **single-tone steady-state** excitation in the description/abstract, whereas this repo's core task is **time-domain pulse history / temporal order** in a damped second-order medium. That temporal distinction may matter.
 
-## 6. Time-domain acoustic/metamaterial adjoints are also established
+## 7. Time-domain acoustic/metamaterial adjoints are also established
 
 For example, Lin et al., **“Topology and shape optimization of broadband acoustic metamaterials and phononic crystals,”** *Acoustical Science and Technology* 38(5), 254–260 (2017), DOI `10.1250/ast.38.254`, uses a **time-dependent adjoint** for topology/shape optimization of acoustic wave media.
 
 So “time-domain wave topology + adjoint sensitivity” is not itself new either.
 
-## 7. What the repo should no longer present as a novelty
+## 8. What the repo should no longer present as a novelty
 
 Do not claim novelty for these broad ideas:
 
@@ -100,12 +125,13 @@ continuous material/coupling optimization by adjoints
 reciprocal backward physical propagation for temporal gradients
 time-reversing an error waveform to run BPTT through reciprocal dynamics
 forward/backward interference as local gradient measurement
+bond-local forward x adjoint stiffness learning
 2D tunable wave grids as neuromorphic hardware
 ```
 
 There is strong prior art for all of them.
 
-## 8. What remains specific and potentially interesting here
+## 9. What remains specific and potentially interesting here
 
 The distinctive package is narrower:
 
@@ -148,7 +174,7 @@ The most useful open engineering question may be:
 
 That is a hardware-architecture question, not a claim to have invented wave-based neural computation.
 
-## 9. The bar just got higher — use that
+## 10. The bar just got higher — use that
 
 The existence of very close prior work is not a reason to abandon the project. It gives us mature baselines and a vocabulary.
 

@@ -1,0 +1,35 @@
+name: damping-gauge-combined-closed-loop-smoke
+on:
+  push:
+    paths:
+      - '.github/workflows/damping-gauge-combined-closed-loop-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Short combined-error closed-loop smoke
+        run: >-
+          python damping_gauge_combined_closed_loop.py
+          --functional-arbors FunctionalArbors
+          --seed-start 472 --seeds 4
+          --lag 20 --steps 210
+          --max-candidates 8 --eta .01 --iterations 8
+          --mean-eps .005 --loss-cv .20 --loss-cal-error .05
+          --mirror-alpha .95 --operator-drift .02 --readout-noise .05
+          --out runs/damping_gauge_combined_closed_loop/smoke_472_475.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: damping-gauge-combined-closed-loop-smoke-472-475
+          path: runs/damping_gauge_combined_closed_loop/

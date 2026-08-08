@@ -1,0 +1,30 @@
+name: free-coordinate-ablation
+
+on:
+  push:
+    paths:
+      - 'free_coordinate_ablation.py'
+      - '.github/workflows/free-coordinate-ablation.yml'
+  workflow_dispatch:
+
+jobs:
+  ablate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python free_coordinate_ablation.py --selftest
+      - name: Descriptive ablation on opened benchmark bodies
+        run: python free_coordinate_ablation.py --functional-arbors FunctionalArbors --seed-start 288 --seeds 12 --P 8 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/free_coordinate_ablation/ablation_288_299.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: free-coordinate-ablation-288-299
+          path: runs/free_coordinate_ablation/

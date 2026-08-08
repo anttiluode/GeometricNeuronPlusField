@@ -12,6 +12,8 @@ Their central result is directly geometric:
 
 Using simultaneous multisite whole-cell recordings and modeling, they found that this active impedance gradient produces temporal synchrony of rhythmic inputs over wide dendritic regions, especially in theta/gamma ranges.
 
+A particularly important detail for this repository is that the synchrony is a **somatic transfer/readout effect**, not the dendritic voltage field becoming spatially uniform. Their supplementary analysis explicitly reports theta-frequency oscillatory synchrony at the soma while local dendritic responses retain location-dependent phase differences.
+
 Their experiments also report that gamma-frequency synaptic bursts generate lower theta-frequency components that contribute to this oscillatory synchrony.
 
 This is established neuroscience. It is not a result of this repository.
@@ -51,6 +53,16 @@ frequency-dependent transfer relation
 ```
 
 This is extremely close to the mature `GeometricNeuronPlusField` framing: **mass/shape and electrical dynamics co-define the coordinates in which temporal relations arrive at the soma.**
+
+It also gives a biological example of the distinction that kept appearing in the earlier Horizon/Clockfield discussion:
+
+```text
+local distributed field remains phase-rich / nonuniform
+while
+one consequential projection can become coordinated
+```
+
+The field does not have to freeze for the readout relation to become useful.
 
 ## A subtle connection to the new gating result
 
@@ -136,7 +148,7 @@ The 2024 in-vivo voltage-imaging result and the 2013 HCN synchrony result are no
 
 They address different observables and conditions:
 
-- Vaidya & Johnston: frequency-dependent transfer from distributed dendritic inputs to a common somatic readout can be synchronized by an HCN gradient.
+- Vaidya & Johnston: frequency-dependent transfer from distributed dendritic inputs to a common somatic readout can be synchronized by an HCN gradient while local dendritic responses remain phase-dependent.
 - Liao et al.: intracellular theta membrane-potential phase itself is spatially organized across the dendritic arbor in vivo.
 
 Together they warn against treating a pyramidal neuron as either a uniform cable or a globally phase-locked lump.
@@ -145,4 +157,4 @@ The arbor contains both spatially varying transfer properties and spatially vary
 
 ## Wall sentence
 
-> **A real pyramidal dendrite does something our early delay-line model did not: it spatially grades its own impedance to compensate the timing consequences of its geometry. The biologically interesting Geometric Neuron is therefore not shape plus signal; it is shape plus a morphology-indexed electrical material.**
+> **A real pyramidal dendrite does something our early delay-line model did not: it spatially grades its own impedance to compensate the timing consequences of its geometry. The local field can remain phase-rich while the soma sees a synchronized relation. The biologically interesting Geometric Neuron is therefore not shape plus signal; it is shape plus a morphology-indexed electrical material.**

@@ -1,0 +1,58 @@
+name: source-gain-balance
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'source_gain_balance_probe.py'
+      - 'SOURCE_GAIN_BALANCE_PREREG_V01.md'
+      - '.github/workflows/source-gain-balance.yml'
+
+jobs:
+  gain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+
+      - name: Selftest
+        run: python source_gain_balance_probe.py --selftest
+
+      - name: Fresh discovery seeds 24-35
+        run: >-
+          python source_gain_balance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 24
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/source_gain_balance/discovery_24_35.json
+
+      - name: Fresh confirmation seeds 36-47
+        run: >-
+          python source_gain_balance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 36
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/source_gain_balance/confirmation_36_47.json
+
+      - name: Upload receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-gain-balance-24-47
+          path: runs/source_gain_balance/

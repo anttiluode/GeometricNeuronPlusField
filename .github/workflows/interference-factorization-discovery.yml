@@ -29,3 +29,5 @@ jobs:
         with:
           name: interference-factorization-discovery-132-143
           path: runs/interference_factorization_discovery/
+
+# registered before discovery run

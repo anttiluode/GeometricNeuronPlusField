@@ -1,0 +1,30 @@
+name: nonreciprocal-adjoint-dev
+
+on:
+  push:
+    paths:
+      - 'nonreciprocal_adjoint_probe.py'
+      - '.github/workflows/nonreciprocal-adjoint-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  nonreciprocal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python nonreciprocal_adjoint_probe.py --selftest
+      - name: Reused development seeds 400-403
+        run: python nonreciprocal_adjoint_probe.py --functional-arbors FunctionalArbors --seed-start 400 --seeds 4 --lag 20 --steps 210 --out runs/nonreciprocal_adjoint/dev_400_403.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nonreciprocal-adjoint-dev-400-403
+          path: runs/nonreciprocal_adjoint/

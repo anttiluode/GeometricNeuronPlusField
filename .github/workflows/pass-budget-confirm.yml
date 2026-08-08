@@ -1,0 +1,31 @@
+name: pass-budget-confirm
+
+on:
+  push:
+    paths:
+      - 'PASS_BUDGET_CONFIRM_PREREG_V01.md'
+      - 'pass_budget_probe.py'
+      - '.github/workflows/pass-budget-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python pass_budget_probe.py --selftest
+      - name: Fresh pass-budget seeds 336-347
+        run: python pass_budget_probe.py --functional-arbors FunctionalArbors --seed-start 336 --seeds 12 --P 8 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/pass_budget_confirm/pass_budget_336_347.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pass-budget-confirm-336-347
+          path: runs/pass_budget_confirm/

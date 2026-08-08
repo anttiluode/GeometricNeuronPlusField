@@ -1,0 +1,30 @@
+name: spectral-gradient-learning-dev
+
+on:
+  push:
+    paths:
+      - 'spectral_gradient_learning_probe.py'
+      - '.github/workflows/spectral-gradient-learning-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python spectral_gradient_learning_probe.py --selftest
+      - name: Reused development seeds 240-243
+        run: python spectral_gradient_learning_probe.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --lag 20 --steps 210 --max-candidates 8 --eta .01 --iterations 40 --out runs/spectral_gradient_learning/dev_240_243.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spectral-gradient-learning-dev-240-243
+          path: runs/spectral_gradient_learning/

@@ -11,7 +11,7 @@ Procedure for each frozen arbor:
 4. Optimize the same joint .03/.04 phase-coherence objective using the exact
    local material gradient projected to zero-sum within every shell.
 
-The release learner cannot alter the radial profile at all.  Any improvement is
+The release learner cannot alter the radial profile at all. Any improvement is
 therefore a pure within-distance / branch-specific effect.
 
 This is cleaner than comparing two independently trained solutions from uniform
@@ -45,10 +45,33 @@ def shell_totals(vals,groups):
     return np.asarray([float(np.sum(vals[q])) for q in groups],float)
 
 
+def project_capped_simplex(v,total,cap):
+    """Euclidean projection onto sum(x)=total with 0<=x<=cap.
+
+    Within one graph-distance shell every cell has unit weight, so the KKT
+    solution is x = clip(v-lambda, 0, cap).  Bisection on lambda gives an exact
+    shell-total preserving projection up to floating-point tolerance.
+    """
+    v=np.asarray(v,float)
+    total=float(total);cap=float(cap)
+    n=len(v)
+    if n==0:return v.copy()
+    if total<=0:return np.zeros_like(v)
+    if total>=cap*n:return np.full_like(v,cap)
+    lo=float(np.min(v-cap))-1.0
+    hi=float(np.max(v))+1.0
+    for _ in range(120):
+        mid=(lo+hi)/2.0
+        x=np.clip(v-mid,0.0,cap)
+        if float(np.sum(x))>total:lo=mid
+        else:hi=mid
+    return np.clip(v-(lo+hi)/2.0,0.0,cap)
+
+
 def project_each_shell(v,groups,totals,cap):
     v=np.asarray(v,float);out=v.copy()
     for q,t in zip(groups,totals):
-        out[q]=hml.project_capped_simplex(v[q],float(t),float(cap))
+        out[q]=project_capped_simplex(v[q],float(t),float(cap))
     return out
 
 
@@ -156,11 +179,23 @@ def parse_args():
     ap.add_argument('--radial-steps',type=int,default=160);ap.add_argument('--release-steps',type=int,default=80)
     ap.add_argument('--step-fraction',type=float,default=.10)
     ap.add_argument('--out',default='runs/material_within_shell_release/dev_622_627.json')
+    ap.add_argument('--selftest',action='store_true')
     return ap.parse_args()
 
 
+def selftest():
+    v=np.array([-.2,.1,.7,.3])
+    x=project_capped_simplex(v,.11,.05)
+    assert np.all(x>=-1e-12) and np.all(x<=.05+1e-12)
+    assert abs(float(x.sum())-.11)<1e-10
+    print('selftest ok',x,float(x.sum()))
+
+
 def main():
-    a=parse_args();fa=Path(a.functional_arbors).resolve()
+    a=parse_args()
+    if a.selftest:
+        selftest();return
+    fa=Path(a.functional_arbors).resolve()
     if not fa.exists():raise SystemExit(f'FunctionalArbors not found at {fa}')
     sys.path.insert(0,str(fa))
     from v09_causal_eligibility.eligibility_arbor import V09Config,CausalEligibilityArbor

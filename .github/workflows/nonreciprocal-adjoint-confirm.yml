@@ -1,0 +1,30 @@
+name: nonreciprocal-adjoint-confirm
+
+on:
+  push:
+    paths:
+      - 'NONRECIPROCAL_ADJOINT_PREREG_V01.md'
+      - '.github/workflows/nonreciprocal-adjoint-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python nonreciprocal_adjoint_probe.py --selftest
+      - name: Fresh held-out seeds 460-471
+        run: python nonreciprocal_adjoint_probe.py --functional-arbors FunctionalArbors --seed-start 460 --seeds 12 --lag 20 --steps 210 --out runs/nonreciprocal_adjoint_confirm/confirm_460_471.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nonreciprocal-adjoint-confirm-460-471
+          path: runs/nonreciprocal_adjoint_confirm/

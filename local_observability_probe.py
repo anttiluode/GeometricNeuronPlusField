@@ -1,15 +1,17 @@
 """Can a small local soma aperture observe the confirmed global task-mode band?
 
-The graph eigenbasis is an omniscient microscope.  A physical soma/AIS interface is
-local.  This probe asks a geometry-only observability question on frozen bodies:
-restrict modes 18-20 to graph-distance balls around the soma and measure whether
-those three global coordinates remain visible and well-conditioned locally.
+The graph eigenbasis is an omniscient microscope. A physical soma/AIS interface is
+local. This probe restricts confirmed modes 18-20 to graph-distance balls around
+the soma and measures whether those three global coordinates remain independently
+visible and well-conditioned.
 
-Controls are equal-size random cell sets on the SAME body.  No wave simulation,
-learning, fitted readout, or active AIS model is used here.  A positive result would
-say the body itself brings the task band into a locally observable mixture near the
-soma.  A null says passive geometry alone does not privilege the soma; an active
-boundary would then have to supply the missing selectivity.
+Two controls are kept separate:
+
+1. equal-size RANDOM CELL SETS -- distributed apertures with the same tap count;
+2. graph-radius balls around EVERY OTHER BODY CELL -- the important locality-
+   matched control, asking whether the soma is special among equally local apertures.
+
+No wave simulation, learning, fitted readout, or active AIS model is used here.
 """
 from __future__ import annotations
 
@@ -61,7 +63,7 @@ def distances(body, start):
 def aperture_metrics(Vband, ids, total_cells):
     ids = np.asarray(ids, int)
     if ids.size == 0:
-        return dict(n=0, capture=0.0, smin=0.0, smax=0.0, isotropy=0.0, rank=0)
+        return dict(n=0, cell_fraction=0.0, capture=0.0, smin=0.0, smax=0.0, isotropy=0.0, rank=0)
     M = Vband[ids, :]
     s = np.linalg.svd(M, compute_uv=False)
     tol = max(M.shape) * np.finfo(float).eps * (s[0] if len(s) else 1.0)
@@ -112,29 +114,42 @@ def main():
         if max(band) >= V.shape[1]:
             continue
         Vband = V[:,band]
-        ds = distances(m.body, m.soma)
+        all_dist = {p: distances(m.body,p) for p in coords}
+        ds = all_dist[tuple(m.soma)]
         rng = np.random.default_rng(seed+1701)
         per=[]
+
         for R in radii:
-            cells = [p for p in coords if ds.get(p,999) <= R]
-            ids = [idx[p] for p in cells]
+            soma_cells = [p for p in coords if ds.get(p,999) <= R]
+            ids = [idx[p] for p in soma_cells]
             met = aperture_metrics(Vband,ids,len(coords))
-            controls=[]
-            k=len(ids)
+
+            # Distributed equal-count controls.
+            random_sets=[]; k=len(ids)
             if k>0:
                 for _ in range(a.random_controls):
                     rid = rng.choice(len(coords), k, replace=False)
-                    controls.append(aperture_metrics(Vband,rid,len(coords)))
-            met['capture_random_mean'] = float(np.mean([q['capture'] for q in controls])) if controls else 0.0
-            met['smin_random_mean'] = float(np.mean([q['smin'] for q in controls])) if controls else 0.0
-            met['isotropy_random_mean'] = float(np.mean([q['isotropy'] for q in controls])) if controls else 0.0
-            met['capture_percentile'] = percentile(met['capture'], [q['capture'] for q in controls])
-            met['smin_percentile'] = percentile(met['smin'], [q['smin'] for q in controls])
-            met['isotropy_percentile'] = percentile(met['isotropy'], [q['isotropy'] for q in controls])
+                    random_sets.append(aperture_metrics(Vband,rid,len(coords)))
+
+            # Locality-matched controls: same graph radius around every possible center.
+            local_balls=[]
+            for center in coords:
+                dc = all_dist[center]
+                cid=[idx[p] for p in coords if dc.get(p,999) <= R]
+                local_balls.append(aperture_metrics(Vband,cid,len(coords)))
+
+            for key in ('capture','smin','isotropy'):
+                met[f'{key}_random_mean'] = float(np.mean([q[key] for q in random_sets])) if random_sets else 0.0
+                met[f'{key}_random_percentile'] = percentile(met[key],[q[key] for q in random_sets])
+                met[f'{key}_localball_mean'] = float(np.mean([q[key] for q in local_balls])) if local_balls else 0.0
+                met[f'{key}_localball_percentile'] = percentile(met[key],[q[key] for q in local_balls])
+            met['localball_n_mean'] = float(np.mean([q['n'] for q in local_balls]))
+            met['localball_n_median'] = float(np.median([q['n'] for q in local_balls]))
             per.append(dict(radius=R, **met))
+
         rows.append(dict(seed=seed, cells=len(coords), soma=list(map(int,m.soma)), radii=per))
         print(f'seed {seed:2d}: ' + ' '.join(
-            f'R{q["radius"]}:n{q["n"]}/smin%{q["smin_percentile"]:.2f}' for q in per))
+            f'R{q["radius"]}:n{q["n"]}/local-smin%{q["smin_localball_percentile"]:.2f}' for q in per))
 
     if not rows:
         raise SystemExit('No bodies')
@@ -149,26 +164,35 @@ def main():
             cell_fraction_mean=mean('cell_fraction'),
             capture_mean=mean('capture'),
             capture_random_mean=mean('capture_random_mean'),
-            capture_enrichment=float(mean('capture')/(mean('capture_random_mean')+1e-15)),
+            capture_random_enrichment=float(mean('capture')/(mean('capture_random_mean')+1e-15)),
+            capture_random_percentile_median=med('capture_random_percentile'),
+            capture_localball_mean=mean('capture_localball_mean'),
+            capture_localball_percentile_median=med('capture_localball_percentile'),
             smin_mean=mean('smin'),
             smin_random_mean=mean('smin_random_mean'),
-            smin_percentile_median=med('smin_percentile'),
+            smin_random_percentile_median=med('smin_random_percentile'),
+            smin_localball_mean=mean('smin_localball_mean'),
+            smin_localball_percentile_median=med('smin_localball_percentile'),
             isotropy_mean=mean('isotropy'),
             isotropy_random_mean=mean('isotropy_random_mean'),
-            isotropy_percentile_median=med('isotropy_percentile'),
+            isotropy_random_percentile_median=med('isotropy_random_percentile'),
+            isotropy_localball_mean=mean('isotropy_localball_mean'),
+            isotropy_localball_percentile_median=med('isotropy_localball_percentile'),
             full_rank_count=int(sum(q['rank']==len(band) for q in rr)),
             bodies=len(rr),
         ))
 
-    payload=dict(experiment='local_observability_v01', band=band, radii=radii,
+    payload=dict(experiment='local_observability_v02', band=band, radii=radii,
                  random_controls=a.random_controls, summary=summary, rows=rows)
     out=Path(a.out); out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(payload,indent=2),encoding='utf-8')
 
-    print('\nLOCAL OBSERVABILITY RECEIPT')
+    print('\nLOCAL OBSERVABILITY RECEIPT v0.2')
     for s in summary:
-        print(f'  R={s["radius"]}: n={s["n_mean"]:.1f} capture x{s["capture_enrichment"]:.2f} '
-              f'smin pct={s["smin_percentile_median"]:.2f} iso pct={s["isotropy_percentile_median"]:.2f} '
+        print(f'  R={s["radius"]}: n={s["n_mean"]:.1f} '
+              f'smin pct random={s["smin_random_percentile_median"]:.3f} '
+              f'local-ball={s["smin_localball_percentile_median"]:.3f} '
+              f'iso pct local-ball={s["isotropy_localball_percentile_median"]:.3f} '
               f'full-rank={s["full_rank_count"]}/{s["bodies"]}')
     print(f'  wrote {out}')
 

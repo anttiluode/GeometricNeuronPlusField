@@ -1,0 +1,38 @@
+name: hcn-impedance-dev
+
+on:
+  push:
+    paths:
+      - 'hcn_impedance_probe.py'
+      - '.github/workflows/hcn-impedance-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_impedance_probe.py --selftest
+      - name: Development bodies 552-555
+        run: >-
+          python hcn_impedance_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 552 --seeds 4
+          --g0s 0.005,0.02
+          --ratios 2,7
+          --taus 4,12,32
+          --omegas 0.04,0.08,0.12,0.16,0.24
+          --nshuffle 3
+          --out runs/hcn_impedance/dev_552_555.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hcn-impedance-dev-552-555
+          path: runs/hcn_impedance/

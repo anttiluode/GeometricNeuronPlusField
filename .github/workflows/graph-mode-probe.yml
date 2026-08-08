@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'graph_mode_probe.py'
+      - 'confirm_graph_band.py'
       - '.github/workflows/graph-mode-probe.yml'
 
 jobs:
@@ -30,7 +31,7 @@ jobs:
       - name: Selftest
         run: python graph_mode_probe.py --selftest
 
-      - name: Canonical 12-seed probe
+      - name: Canonical discovery set, seeds 0-11
         run: >-
           python graph_mode_probe.py
           --functional-arbors FunctionalArbors
@@ -38,8 +39,24 @@ jobs:
           --modes 24
           --outdir runs/graph_modes
 
-      - name: Upload receipts
+      - name: Held-out confirmation, seeds 12-23
+        run: >-
+          python confirm_graph_band.py
+          --functional-arbors FunctionalArbors
+          --seed-start 12
+          --seeds 12
+          --modes 24
+          --lag 20
+          --outdir runs/confirm_graph_band
+
+      - name: Upload discovery receipts
         uses: actions/upload-artifact@v4
         with:
           name: graph-mode-probe-12
           path: runs/graph_modes/
+
+      - name: Upload held-out confirmation
+        uses: actions/upload-artifact@v4
+        with:
+          name: heldout-graph-band-12-23
+          path: runs/confirm_graph_band/

@@ -1,0 +1,35 @@
+name: hcn-inductive-diagnostic
+
+on:
+  push:
+    paths:
+      - 'hcn_inductive_diagnostic.py'
+      - '.github/workflows/hcn-inductive-diagnostic.yml'
+  workflow_dispatch:
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python hcn_inductive_diagnostic.py --selftest
+      - name: Diagnose frozen development candidate on bodies 552-559
+        run: >-
+          python hcn_inductive_diagnostic.py
+          --functional-arbors FunctionalArbors
+          --seed-start 552 --seeds 8
+          --g0 0.02 --ratio 7 --tau 2 --omega 0.04
+          --nshuffle 8
+          --out runs/hcn_inductive/dev_552_559.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hcn-inductive-dev-552-559
+          path: runs/hcn_inductive/

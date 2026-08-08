@@ -1,0 +1,39 @@
+name: common-mode-mixer-confirm
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'common_mode_mixer_confirm_probe.py'
+      - 'COMMON_MODE_MIXER_CONFIRM_PREREG_V01.md'
+      - '.github/workflows/common-mode-mixer-confirm.yml'
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python common_mode_mixer_confirm_probe.py --selftest
+      - name: Held-out seeds 96-107
+        run: >-
+          python common_mode_mixer_confirm_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 96
+          --seeds 12
+          --lag 20
+          --steps 210
+          --out runs/common_mode_mixer_confirm/common_mode_mixer_confirm.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: common-mode-mixer-confirm-96-107
+          path: runs/common_mode_mixer_confirm/

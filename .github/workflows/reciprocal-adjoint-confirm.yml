@@ -1,0 +1,31 @@
+name: reciprocal-adjoint-confirm
+
+on:
+  push:
+    paths:
+      - 'RECIPROCAL_ADJOINT_PREREG_V01.md'
+      - 'reciprocal_adjoint_probe.py'
+      - '.github/workflows/reciprocal-adjoint-confirm.yml'
+  workflow_dispatch:
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python reciprocal_adjoint_probe.py --selftest
+      - name: Fresh seeds 264-275
+        run: python reciprocal_adjoint_probe.py --functional-arbors FunctionalArbors --seed-start 264 --seeds 12 --out runs/reciprocal_adjoint_confirm/reciprocal_adjoint_264_275.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reciprocal-adjoint-confirm-264-275
+          path: runs/reciprocal_adjoint_confirm/

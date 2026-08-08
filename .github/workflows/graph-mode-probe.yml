@@ -7,6 +7,8 @@ on:
       - 'graph_mode_probe.py'
       - 'confirm_graph_band.py'
       - 'modal_mechanism_probe.py'
+      - 'modal_locality.py'
+      - 'local_observability_probe.py'
       - '.github/workflows/graph-mode-probe.yml'
 
 jobs:
@@ -59,6 +61,24 @@ jobs:
           --lag 20
           --outdir runs/modal_mechanism
 
+      - name: Modal locality audit, seeds 0-11
+        run: >-
+          python modal_locality.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 12
+          --perts 25
+          --out runs/modal_locality/modal_locality.json
+
+      - name: Local task-band observability, seeds 0-23
+        run: >-
+          python local_observability_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 0
+          --seeds 24
+          --random-controls 250
+          --out runs/local_observability/local_observability.json
+
       - name: Upload discovery receipts
         uses: actions/upload-artifact@v4
         with:
@@ -76,3 +96,15 @@ jobs:
         with:
           name: modal-mechanism-12
           path: runs/modal_mechanism/
+
+      - name: Upload modal locality
+        uses: actions/upload-artifact@v4
+        with:
+          name: modal-locality-12
+          path: runs/modal_locality/
+
+      - name: Upload local observability
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-observability-24
+          path: runs/local_observability/

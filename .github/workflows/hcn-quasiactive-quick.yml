@@ -1,0 +1,37 @@
+name: hcn-quasiactive-quick
+
+on:
+  push:
+    paths:
+      - '.github/workflows/hcn-quasiactive-quick.yml'
+  workflow_dispatch:
+
+jobs:
+  quick:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Focused complete quasi-active check 564-567
+        run: >-
+          python hcn_quasiactive_probe.py
+          --functional-arbors FunctionalArbors
+          --seed-start 564 --seeds 4
+          --g0s 0.01,0.02
+          --ratios 7
+          --taus 2,4
+          --mus 1,2
+          --omegas 0.03,0.04,0.05,0.06
+          --nshuffle 3
+          --out runs/hcn_quasiactive_quick/dev_564_567.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hcn-quasiactive-quick-564-567
+          path: runs/hcn_quasiactive_quick/

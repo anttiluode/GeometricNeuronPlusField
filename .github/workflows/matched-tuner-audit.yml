@@ -1,0 +1,30 @@
+name: matched-tuner-audit
+
+on:
+  push:
+    paths:
+      - 'matched_tuner_audit.py'
+      - '.github/workflows/matched-tuner-audit.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python matched_tuner_audit.py --selftest
+      - name: Reused development seeds 240-243
+        run: python matched_tuner_audit.py --functional-arbors FunctionalArbors --seed-start 240 --seeds 4 --P 8 --iterations 40 --train-lags 16,20,24 --test-lags 14,18,22,26 --out runs/matched_tuner_audit/audit_240_243.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: matched-tuner-audit-240-243
+          path: runs/matched_tuner_audit/

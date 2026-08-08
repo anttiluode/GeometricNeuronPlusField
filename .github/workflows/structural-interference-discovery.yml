@@ -1,0 +1,31 @@
+name: structural-interference-discovery
+
+on:
+  push:
+    paths:
+      - 'structural_interference_probe.py'
+      - 'STRUCTURAL_INTERFERENCE_DISCOVERY_PREREG_V01.md'
+      - '.github/workflows/structural-interference-discovery.yml'
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - run: python structural_interference_probe.py --selftest
+      - name: Fresh discovery seeds 156-167
+        run: python structural_interference_probe.py --functional-arbors FunctionalArbors --seed-start 156 --seeds 12 --max-each 6 --out runs/structural_interference_discovery/structural_interference_156_167.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: structural-interference-discovery-156-167
+          path: runs/structural_interference_discovery/

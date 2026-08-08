@@ -1,0 +1,37 @@
+name: kernel-alignment-discovery
+
+on:
+  push:
+    paths:
+      - 'kernel_alignment_probe.py'
+      - 'KERNEL_ALIGNMENT_DISCOVERY_PREREG_V01.md'
+      - '.github/workflows/kernel-alignment-discovery.yml'
+  workflow_dispatch:
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GeometricNeuronPlusField
+        uses: actions/checkout@v4
+
+      - name: Checkout FunctionalArbors
+        uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: pip install -r requirements.txt
+      - name: Selftest
+        run: python kernel_alignment_probe.py --selftest
+      - name: Fresh discovery seeds 108-119
+        run: python kernel_alignment_probe.py --functional-arbors FunctionalArbors --seed-start 108 --seeds 12 --out runs/kernel_alignment_discovery/kernel_alignment_108_119.json
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: kernel-alignment-discovery-108-119
+          path: runs/kernel_alignment_discovery/

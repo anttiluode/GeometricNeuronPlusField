@@ -1,0 +1,33 @@
+name: damping-gauge-residual-loss-v02-dev
+on:
+  push:
+    paths:
+      - 'damping_gauge_residual_loss_v02.py'
+      - '.github/workflows/damping-gauge-residual-loss-v02-dev.yml'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: anttiluode/FunctionalArbors
+          path: FunctionalArbors
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Physically consistent residual-loss echo on reused bodies
+        run: >-
+          python damping_gauge_residual_loss_v02.py
+          --functional-arbors FunctionalArbors
+          --seed-start 472 --seeds 4
+          --lag 20 --steps 210
+          --out runs/damping_gauge_residual_loss_v02/dev_472_475.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: damping-gauge-residual-loss-v02-dev-472-475
+          path: runs/damping_gauge_residual_loss_v02/

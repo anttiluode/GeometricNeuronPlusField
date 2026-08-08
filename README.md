@@ -2,107 +2,107 @@
 
 A small experimental branch of the Geometric Neuron / Functional Arbor line.
 
-The question here is narrower than "does geometry compute?" The Functional Arbor soma tap test already showed that the same frozen wave-carrying body can report a different temporal preference when the spatial readout is changed. The readout is therefore not a neutral voltmeter; it is part of the computation.
+The question is now more precise than "does geometry compute?"
 
-This repo takes the next step:
+> **What does frozen anatomy contribute to a moving electrical field, where does task information become locally available, and what active boundary is needed to turn that analog field into a temporally precise output event?**
 
-> **Stop choosing soma shapes by hand. Use the arbor's own graph modes as the readout basis, then ask whether a non-settled electrical field can support a settled, informative observable.**
+The source soma-tap experiment is in [`FunctionalArbors/SomaTapTestsClaude`](https://github.com/anttiluode/FunctionalArbors/tree/main/SomaTapTestsClaude).
 
-The source experiment is in [`FunctionalArbors/SomaTapTestsClaude`](https://github.com/anttiluode/FunctionalArbors/tree/main/SomaTapTestsClaude).
-
-## Working picture
-
-There are now two geometries around one moving field:
+## Current working picture
 
 ```text
-input history
-    |
-    v
-arbor / propagation geometry G_D
-    |
-    v
-moving complex field psi(x,t)
-    |
-    v
-readout geometry G_S
-    |
-    v
-scalar consequence
+slow anatomy / operator G
+        |
+        v
+geometry-defined modal filter bank
+        |
+        v
+moving field psi(x,t)
+        |
+        v
+convergence / soma task bottleneck
+        |
+        v
+[active AIS-like state h(t) -- not built yet]
+        |
+        v
+spike event timing
 ```
 
-The old implementation fixed `G_S` to one point:
+The graph basis is a **microscope**, not a claim that biological somata calculate eigenvectors.
+
+## What survived
+
+### 1. Temporal-order information is spectrally structured
+
+On frozen FunctionalArbor bodies the energy-dominant spatial common mode is almost perfectly blind to A/B order, while a higher graph-Laplacian band (modes 18–20 in the registered setup) carries appreciable order information and gains selectivity from coherent projection.
+
+The discovery-set band survived a held-out 12-body confirmation. See [`DISCOVERY_V01.md`](DISCOVERY_V01.md) and [`CONFIRMATION_V01.md`](CONFIRMATION_V01.md).
+
+### 2. The distributed wave is almost exactly a geometry-defined resonator bank
+
+A parameter-free reduced model
 
 ```text
-y(t) = |psi(soma,t)|^2
+q_n'' + damping q_n' + (restoring + stiffness*K*lambda_n) q_n
+    = phi_n(A) s_A(t) + phi_n(B) s_B(t)
 ```
 
-The tap test showed that this choice is load-bearing. Near-soma apertures mostly rescale the same signal, distal apertures can reverse preference, and a uniform whole-body coherent aperture becomes order-blind. A smooth coherent Gaussian aperture was the one extended readout that showed a robust coherent-over-incoherent advantage.
+predicts the full-field modal contrast almost exactly (`pooled r ~= .995`). That is mathematically expected for the fixed-K graph wave, but conceptually useful: anatomy selects the poles/time scales and input couplings of an LTI resonator bank. See [`MODAL_MECHANISM_V01.md`](MODAL_MECHANISM_V01.md).
 
-The new question is whether the arbor itself supplies a more natural family of readouts.
+### 3. A one-cell anatomical edit is global in modal coordinates
 
-## Experiment 1 — graph-mode microscope
+The modal-locality audit perturbs real frozen bodies one cell at a time. One added cell substantially disturbs about 24% of the modal identities on average; the confirmed task band loses about 8% identity, and the eigenvector change is only weakly localized around the edit. See [`MODAL_LOCALITY_V01.md`](MODAL_LOCALITY_V01.md).
 
-For a frozen body, build the unweighted body graph and its combinatorial Laplacian
+This makes local per-cell credit a badly aligned coordinate for the global computation. It does **not** prove that event-level local eligibility is impossible.
+
+### 4. Locality compresses the global modes, but the soma is a favorable local mixing point
+
+A compact patch anywhere on the tree is poor at reconstructing three global graph modes compared with scattered graph-wide taps. With the fairer control — same-radius compact balls around every other body cell — the soma neighborhood is consistently better-conditioned than most equally local apertures, without containing unusually high task-band energy. See [`LOCAL_OBSERVABILITY_V02.md`](LOCAL_OBSERVABILITY_V02.md).
+
+### 5. The actual task scalar is strongly concentrated at the soma/root
+
+The stronger functional result is simpler. Across 24 frozen bodies:
 
 ```text
-L = D - A
-L phi_n = lambda_n phi_n
+mean soma |temporal-order contrast|      0.2283
+mean over all occupied cells             0.0541
+median soma percentile among body cells  0.8786
+soma in top quartile                     24 / 24
 ```
 
-The `phi_n` are not hand-drawn soma masks. They are the body's own spatial modes.
+Coherent graph balls around the soma remain far more task-selective than same-radius local balls elsewhere from radius 1 through 6. The soma is therefore better described as a **task bottleneck** than as a miniature reconstruction of the global field. See [`TASK_BOTTLENECK_V02.md`](TASK_BOTTLENECK_V02.md).
 
-For every mode we measure a coherent projection
+Construction caveat: FunctionalArbor begins with a designated soma/root and grows source connectivity around it. This result shows what convergence geometry does; it does not show that an unbiased developmental process discovered the output site.
 
-```text
-a_n(t) = sum_x phi_n(x) psi(x,t)
-y_n(t) = |a_n(t)|^2
-```
+## The AIS bridge
 
-and a phase-destroyed matched control
+The current toy stops at a passive quadratic readout. Biology does not.
 
-```text
-y_n,incoh(t) = sum_x phi_n(x)^2 |psi(x,t)|^2
-```
+The axon initial segment sits immediately downstream of the somatodendritic convergence region and is an active, stateful, plastic compartment enriched in voltage-gated channels. Its length, location, channel composition and channel kinetics affect excitability and temporal encoding.
 
-Because the eigenvectors are orthonormal, the modal powers also give a clean decomposition of where field energy sits in the geometry.
+That suggests a narrower and testable architectural hypothesis:
 
-The probe sweeps A/B pulse lag exactly as the soma tap test did and asks:
+> **Distributed geometry supplies an analog modal computation; convergence makes a task-relevant mixture locally available; an AIS-like active boundary converts that moving mixture into sparse, history-dependent, temporally precise output events.**
 
-1. Which graph modes carry temporal-order selectivity?
-2. Is selectivity concentrated in a small spectral band or spread across the body?
-3. Does coherent projection buy information beyond the matched incoherent modal-energy control?
-4. Does the mode that best reports path asymmetry vary with morphology?
-5. Is the spatially constant mode (`lambda ~= 0`) blind to order, as the whole-body tap result suggests?
+See [`AIS_BRIDGE.md`](AIS_BRIDGE.md) and [`OPERATOR_FLOW_EVENT.md`](OPERATOR_FLOW_EVENT.md).
 
-## Experiment 2 — live field / settled readout
+The next model should not ask an AIS-like compartment to reconstruct the global modes. It should operate only on the local soma mixture and be tested against rate-matched passive/memoryless controls.
 
-A field does not need to freeze for an observation of it to become usable.
+## Experiments
 
-We repeatedly drive a frozen body with the same A-then-B pulse pair. The instantaneous field is required to remain active:
+- [`graph_mode_probe.py`](graph_mode_probe.py) — graph spectral microscope + original live-field/settled-readout test.
+- [`confirm_graph_band.py`](confirm_graph_band.py) — held-out confirmation of the discovery band.
+- [`modal_mechanism_probe.py`](modal_mechanism_probe.py) — reduced modal oscillator mechanism.
+- [`modal_locality.py`](modal_locality.py) — one-cell structural perturbation audit.
+- [`local_observability_probe.py`](local_observability_probe.py) — soma-local observability versus scattered and contiguous controls.
+- [`task_bottleneck_probe.py`](task_bottleneck_probe.py) — actual task selectivity over every cell and local aperture.
 
-```text
-D_field(t) = ||psi(t) - psi(t-1)|| / (||psi(t)|| + eps)
-```
+## Live-field / settled-readout result
 
-For each graph mode, we integrate its coherent power over one drive cycle and ask whether that cycle-level observable converges even while `D_field` stays nonzero.
+The original strict criterion remains a null. The field stayed live, but zero modes passed the prewritten combination of stability, energy and selectivity thresholds. Those thresholds were not relaxed after seeing the data.
 
-A candidate "settled readout of a live field" must pass three gates:
-
-- the field is still moving;
-- the modal observable is stable from cycle to cycle;
-- the mode carries non-trivial energy **and** non-trivial temporal selectivity.
-
-This last gate matters. A perfectly stable zero readout is not computation.
-
-## Registered failure conditions
-
-This branch should be easy to kill.
-
-- If graph modes merely reproduce the point detector with no spectral structure, the graph-basis idea buys nothing.
-- If coherent and incoherent mode readouts are indistinguishable, the interference claim does not survive this basis.
-- If only near-zero-energy or task-blind modes look "settled," the live-field/settled-readout idea fails.
-- If a result appears only in the seed average and is not organism-stable, report the heterogeneity rather than the mean story.
-- If the constant mode carries the same order information as nonzero modes, the simple "common mode is order-blind" interpretation from the tap test was too strong.
+That null is retained because "the field can keep moving while the computation settles" still needs a better operational demonstration than a stable near-zero observable.
 
 ## Run
 
@@ -114,27 +114,20 @@ parent/
   GeometricNeuronPlusField/
 ```
 
-Then:
+Then, for example:
 
 ```bash
 pip install -r requirements.txt
 python graph_mode_probe.py --functional-arbors ../FunctionalArbors --seeds 12 --modes 24
+python modal_locality.py --functional-arbors ../FunctionalArbors --seeds 12
+python local_observability_probe.py --functional-arbors ../FunctionalArbors --seeds 24
+python task_bottleneck_probe.py --functional-arbors ../FunctionalArbors --seeds 24
 ```
 
-A quick internal check that does not require FunctionalArbors:
-
-```bash
-python graph_mode_probe.py --selftest
-```
-
-Outputs are written under `runs/graph_modes/` by default:
-
-- `graph_mode_results.json` — full seed-level receipts
-- `graph_mode_summary.png` — selectivity and live/settled summary by mode index
-- `mode_maps_seed0.png` — low graph modes painted back onto the first frozen arbor
+GitHub Actions runs the canonical receipts and uploads their JSON/figure artifacts.
 
 ## What this is not
 
-This is an experimental computational model, not a claim that biological somata literally diagonalize graph Laplacians. The graph basis is a microscope: a geometry-derived coordinate system for asking where the information already present in the simulated field lives.
+This is an experimental computational model, not a claim that real dendrites are literal graph-Laplacian computers or that the AIS exists for one single evolutionary reason. Real AIS biology also includes maintenance of axonal polarity and trafficking barriers, among other functions.
 
-If something survives, the later biological/computational question is more interesting: whether a physical soma/dendritic interface could approximate a useful low-dimensional projection of those modes, and whether body geometry and readout geometry can co-adapt.
+The useful target is narrower: identify which pieces of a geometry/field/event architecture are actually necessary in the toy, then compare that division of labor with known neuronal compartments without retrofitting biology to the model.

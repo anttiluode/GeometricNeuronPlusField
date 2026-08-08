@@ -39,6 +39,8 @@ def response_curve(m, base, seqT, seqD, event, dk):
 def slope_sign_reversal(vals):
     vals=np.asarray(vals,float)
     a=np.asarray(ALPHAS,float)
+    if len(vals) != len(a):
+        raise ValueError('response vector must match fixed ALPHAS grid')
     s=np.diff(vals)/np.diff(a)
     tol=max(1e-12, float(np.max(np.abs(s)))*1e-8 if len(s) else 1e-12)
     sg=np.sign(np.where(np.abs(s)>tol,s,0.0)).astype(int)
@@ -127,9 +129,10 @@ def parse_args():
 
 
 def selftest():
-    y=np.array([0,.1,.2,.15,.1])
+    y=np.linspace(0.0,1.0,len(ALPHAS))
+    y[len(ALPHAS)//2:] = y[len(ALPHAS)//2] - np.linspace(0.0,.5,len(ALPHAS)-len(ALPHAS)//2)
     assert slope_sign_reversal(y)
-    y=np.array([0,.1,.2,.3,.4])
+    y=np.linspace(0.0,1.0,len(ALPHAS))
     assert not slope_sign_reversal(y)
     print('selftest ok')
 
